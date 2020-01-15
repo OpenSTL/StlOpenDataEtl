@@ -13,4 +13,6 @@ print(stdout.decode('utf-8'))
 
 
 with open('requirements.txt', 'w') as requirementsWriter:
-    requirementsWriter.write(stdout.decode('utf-8'))
+    # Remove invalid package 'pkg-resources==0.0.0' (Ubuntu/pip bug)
+    packages = stdout.decode('utf-8').replace('pkg-resources==0.0.0','')
+    requirementsWriter.write(packages)
