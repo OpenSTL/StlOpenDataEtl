@@ -26,3 +26,19 @@ if __name__ == '__main__':
             response.payload = parser.flatten(response, SUPPORTED_FILE_EXT)
         except Exception as err:
             print(err)
+
+    # Extractor
+    for response in responses:
+        for payload in response.payload:
+            if utils.get_file_ext(payload.filename) == CSV:
+                print(CSV)
+            elif utils.get_file_ext(payload.filename) == MDB:
+                print(MDB)
+            elif utils.get_file_ext(payload.filename) == DBF:
+                print(DBF)
+            elif utils.get_file_ext(payload.filename) == SHP:
+                print(SHP)
+
+    # Transformer
+    for response in responses:
+        pass
