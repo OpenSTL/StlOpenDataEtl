@@ -3,7 +3,7 @@ StlOpenDataEtl
 '''
 
 import os
-from etl import fetcher, parser, utils
+from etl import fetcher, parser, loader, utils
 
 CSV = '.csv'  # comma separated values
 MDB = '.mdb'  # microsoft access database (jet, access, etc.)
@@ -42,3 +42,10 @@ if __name__ == '__main__':
     # Transformer
     for response in responses:
         pass
+
+
+    # Loader
+    db_yaml = utils.get_yaml('data/database/config.yml')
+    loader = loader.Loader(db_yaml)
+    loader.connect()
+    # TODO: insert, update tables using loader class
