@@ -35,7 +35,9 @@ There are a lot of resources for doing this online, but I recommend the followin
 
 #### Running The Application
 
-1. Run `python3 ./app.py`.
+1. Get database credentials from @jigglepuff
+2. Run `python3 ./config.py`
+3. Run `python3 ./app.py`.
 
 
 #### Deactivating Virtual Environment

@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore database credential secret file
+data/database/config.yml
+
+# Mac metadata
+*.DS_Store
+
 # C extensions
 *.so
 
