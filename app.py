@@ -3,7 +3,7 @@ StlOpenDataEtl
 '''
 
 import os
-from etl import fetcher, parser, loader, utils
+from etl import fetcher, parser, extractor, loader, utils
 
 CSV = '.csv'  # comma separated values
 MDB = '.mdb'  # microsoft access database (jet, access, etc.)
@@ -28,20 +28,28 @@ if __name__ == '__main__':
             print(err)
 
     # Extractor
+    extractor = extractor.Extractor()
+    # Master entity list
+    entity_list = []
     for response in responses:
         for payload in response.payload:
             if utils.get_file_ext(payload.filename) == CSV:
                 print(CSV)
+                entities = extractor.get_csv_data(payload)
             elif utils.get_file_ext(payload.filename) == MDB:
                 print(MDB)
+                entities = extractor.get_mdb_data(payload)
             elif utils.get_file_ext(payload.filename) == DBF:
                 print(DBF)
+                entities = extractor.get_dbf_data(payload)
             elif utils.get_file_ext(payload.filename) == SHP:
                 print(SHP)
+            # Add to master entity list
+            entity_list.extend(entities)
 
     # Transformer
-    for response in responses:
-        pass
+    for entity in entity_list:
+        print(entity.tablename)
 
 
     # Loader
