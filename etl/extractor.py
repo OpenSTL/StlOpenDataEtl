@@ -103,23 +103,24 @@ class Extractor:
         return [Entity(payload.filename, dataframe)]
 
     # Extract .shp data
-    def get_shp_data(self, response, shapefile):
+    def get_shp_data(self, archive, shapefile):
         '''
-        Returns list of Entity object(s) (str,dataframe) from a successful extraction
+        Returns list of Entity objects from a successful extraction
 
         Arguments:
-        response -- fetcher response from the archive containing the shape file and supporting files (FetcherResponse)
-        shapefile -- the shape file from the archive; looks like the "payload" argument in other extractors (str, binary)
+        archive -- fetcher response from the archive containing the shape file and supporting files (FetcherResponse)
+        shapefile -- the shape file from the archive; looks like the "payload" argument in other extractors
         '''
         SCRATCH_DIR = 'scratch'
         try:
-            # .shp requires multiple supporting files; save all to disk
+            # .shp requires multiple supporting files; save all files from archive to disk
             os.mkdir(SCRATCH_DIR)
-            for payload in response.payload:
-                payloadFilename = os.path.join(SCRATCH_DIR, payload.filename)
-                open(payloadFilename, 'wb').write(payload.data.getvalue())
+            for archivedFile in archive.payload:
+                archivedFilename = os.path.join(SCRATCH_DIR, archivedFile.filename)
+                open(archivedFilename, 'wb').write(archivedFile.data.getvalue())
 
-            dataframe = geopandas.read_file(os.path.join(SCRATCH_DIR, shapefile.filename))
+            shapeFilename = os.path.join(SCRATCH_DIR, shapefile.filename)
+            dataframe = geopandas.read_file(shapeFilename)
             return [Entity(shapefile.filename, dataframe)]
 
         finally:
