@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-import os
 import csv
+import geopandas
+import os
 import pandas as pd
-from io import StringIO
-from dbfread import DBF as DBFobj
 import pandas_access
+import shutil
+from dbfread import DBF as DBFobj
+from io import StringIO
 from etl.entity import Entity
 
 
@@ -101,10 +103,25 @@ class Extractor:
         return [Entity(payload.filename, dataframe)]
 
     # Extract .shp data
-    def get_shp_data(self, payload):
+    def get_shp_data(self, archive, shapefile):
         '''
-        Returns ?
+        Returns list of Entity objects from a successful extraction
+
         Arguments:
-        payload -- payload object (str,binary)
+        archive -- fetcher response from the archive containing the shape file and supporting files (FetcherResponse)
+        shapefile -- the shape file from the archive; looks like the "payload" argument in other extractors
         '''
-        pass
+        SCRATCH_DIR = 'scratch'
+        try:
+            # .shp requires multiple supporting files; save all files from archive to disk
+            os.mkdir(SCRATCH_DIR)
+            for archivedFile in archive.payload:
+                archivedFilename = os.path.join(SCRATCH_DIR, archivedFile.filename)
+                open(archivedFilename, 'wb').write(archivedFile.data.getvalue())
+
+            shapeFilename = os.path.join(SCRATCH_DIR, shapefile.filename)
+            dataframe = geopandas.read_file(shapeFilename)
+            return [Entity(shapefile.filename, dataframe)]
+
+        finally:
+            shutil.rmtree(SCRATCH_DIR)
