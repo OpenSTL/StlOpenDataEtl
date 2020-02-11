@@ -1,2 +1,20 @@
+prcl_shape:
+  url: https://www.stlouis-mo.gov/data/upload/data-files/prcl_shape.zip
+
 prcl:
   url: https://www.stlouis-mo.gov/data/upload/data-files/prcl.zip
+
+par:
+  url: https://www.stlouis-mo.gov/data/upload/data-files/par.zip
+
+lra_public:
+  url: https://www.stlouis-mo.gov/data/upload/data-files/lra_public.zip
+
+bldginsp:
+  url: https://www.stlouis-mo.gov/data/upload/data-files/bldginsp.zip
+
+prmbdo:
+  url: https://www.stlouis-mo.gov/data/upload/data-files/prmbdo.zip
+
+forestry_maintenance_properties:
+  url: https://www.stlouis-mo.gov/data/upload/data-files/forestry-maintenance-properties.csv
