@@ -139,3 +139,6 @@ dmypy.json
 
 # Python virtual environment (venv)
 .venv/
+
+# extractor scratch data folder
+scratch

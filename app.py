@@ -6,12 +6,15 @@ import os
 from etl import fetcher, parser, extractor, loader, utils
 
 CSV = '.csv'  # comma separated values
-MDB = '.mdb'  # microsoft access database (jet, access, etc.)
 DBF = '.dbf'  # dbase
+MDB = '.mdb'  # microsoft access database (jet, access, etc.)
+SBN = '.sbn'  # .shp support file
+SBX = '.sbx'  # .shp support file
 SHP = '.shp'  # shapes
+SHX = '.shx'  # .shp support file
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-SUPPORTED_FILE_EXT = [CSV, MDB, DBF, SHP]
+SUPPORTED_FILE_EXT = [CSV, DBF, MDB, SBN, SBX, SHP, SHX]
 
 if __name__ == '__main__':
     # Fetcher
@@ -34,16 +37,15 @@ if __name__ == '__main__':
     for response in responses:
         for payload in response.payload:
             if utils.get_file_ext(payload.filename) == CSV:
-                print(CSV)
                 entities = extractor.get_csv_data(payload)
             elif utils.get_file_ext(payload.filename) == MDB:
-                print(MDB)
                 entities = extractor.get_mdb_data(payload)
             elif utils.get_file_ext(payload.filename) == DBF:
-                print(DBF)
                 entities = extractor.get_dbf_data(payload)
             elif utils.get_file_ext(payload.filename) == SHP:
-                print(SHP)
+                entities = extractor.get_shp_data(response, payload)
+            else:
+                entities = []
             # Add to master entity list
             entity_list.extend(entities)
 
