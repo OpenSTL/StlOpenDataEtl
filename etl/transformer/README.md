@@ -1,5 +1,17 @@
-transform_task_vacant is a prototype for aggregating the vacancy app table from stl data sources.
+transform_task_vacant
+---
+> transform_task_vacant is a prototype for the "T"; aggregating the vacancy app table from stl data sources.
 
-this script is not integrated with the main program yet. I envision us allowing for multiple transform-and-load "tasks" like "vacancy table" and "mapbox layer".
+This script is not integrated with the main program yet. I envision us allowing for multiple transform-and-load "tasks" like "vacancy table" and "mapbox layer".
 
-to run, change `filename` and run transform_task_vacant.py by itself. I used a modified prcl.mdb with only the three important tables; otherwise loading takes even longer.
+This is not complete. Needs help completing all of the computed fields and with the "Known Issues" section.
+
+# Run instructions
+1. Download prcl.mdb or get a modified mdb with only the three important tables. latter will take much less processing time.
+2. Change `filename` to point to your prcl.mdb
+3. Run `python etl/transformer/transform_task_vacant.py`
+
+# Known Issues
+1. At least one property (parcel id 3840001700) has two entries in BldgCom for two BldgNum values. Right now that creates two elements in our ending table. What is the correct approach?
+2. Tons of "data holes" - properties missing records in BldgRes, BldgCom or both.
+3. Needs integration with the rest of the ETL
