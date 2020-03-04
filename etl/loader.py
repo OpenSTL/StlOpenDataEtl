@@ -57,8 +57,19 @@ class Loader:
         chunksize -- writes records in batches of a given size at a time. By default, all rows will be written at once.
 
         '''
-        # Insert DataFrame recrds one by one.
-        data.to_sql(attribute, con = self._engine, if_exists = 'append', chunksize = 1000)
+        # TODO: maybe a better way would be to query remote table into df, compare with live table, record differences, replace new table
+        # Add dataframe to staging area
+        df.to_sql(name = 'STAGING-FORESTRY-MAINTENANCE-PROPERTIES', con = loader._engine, if_exists = 'replace')
+        # Insert new entries in staging table to warehouse table
+        # `FORESTRY-MAINTENANCE-PROPERTIES` and `STAGING-FORESTRY-MAINTENANCE-PROPERTIES` are tables for testing query
+        insert_sql = """
+        INSERT `FORESTRY-MAINTENANCE-PROPERTIES`
+        SELECT *
+        FROM `STAGING-FORESTRY-MAINTENANCE-PROPERTIES` b
+        WHERE
+           NOT EXISTS (SELECT * FROM `FORESTRY-MAINTENANCE-PROPERTIES` a
+                      WHERE a.HANDLE = b.HANDLE)
+        """
         return
 
     def update(self, dataframe, table_name):
@@ -67,5 +78,21 @@ class Loader:
         dataframe -- pandas dataframe object
         table_name -- table name in database
         '''
-        # Update matching ids with dataframe in table_name
+        # `FORESTRY-MAINTENANCE-PROPERTIES` and `STAGING-FORESTRY-MAINTENANCE-PROPERTIES` are tables for testing query
+        # Update old entries in warehouse table with new values from staging table
+        # write function to auto-gen query
+
+        update_sql = """
+        UPDATE `FORESTRY-MAINTENANCE-PROPERTIES`
+        INNER JOIN
+        `STAGING-FORESTRY-MAINTENANCE-PROPERTIES` b
+        ON `FORESTRY-MAINTENANCE-PROPERTIES`.HANDLE = b.HANDLE
+        SET `FORESTRY-MAINTENANCE-PROPERTIES`.CITYBLOCK = b.CITYBLOCK,
+            `FORESTRY-MAINTENANCE-PROPERTIES`.PARCEL = b.PARCEL,
+            `FORESTRY-MAINTENANCE-PROPERTIES`.PROPERTYADDRESS = b.PROPERTYADDRESS,
+            `FORESTRY-MAINTENANCE-PROPERTIES`.PROPERTYTYPE = b.PROPERTYTYPE
+        """
+
+        with loader._engine.begin() as conn:     # TRANSACTION
+            conn.execute(update_sql)
         pass
