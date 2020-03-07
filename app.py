@@ -50,8 +50,8 @@ if __name__ == '__main__':
             entity_dict.update(entities)
 
     # Transformer
-    for entity in entity_list:
-        print(entity.tablename)
+    for entity in entity_dict:
+        print(entity)
 
 
     # Loader
