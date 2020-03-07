@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # Extractor
     extractor = extractor.Extractor()
     # Master entity list
-    entity_list = []
+    entity_dict = dict()
     for response in responses:
         for payload in response.payload:
             if utils.get_file_ext(payload.filename) == CSV:
@@ -45,9 +45,9 @@ if __name__ == '__main__':
             elif utils.get_file_ext(payload.filename) == SHP:
                 entities = extractor.get_shp_data(response, payload)
             else:
-                entities = []
+                entities = {}
             # Add to master entity list
-            entity_list.extend(entities)
+            entity_dict.update(entities)
 
     # Transformer
     for entity in entity_list:
