@@ -34,6 +34,7 @@ if __name__ == '__main__':
     extractor = extractor.Extractor()
     # Master entity list
     entity_dict = dict()
+    entities = []
     for response in responses:
         for payload in response.payload:
             if utils.get_file_ext(payload.filename) == CSV:
