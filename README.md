@@ -30,12 +30,17 @@ There are a lot of resources for doing this online, but I recommend the followin
 #### Activating Virtual Environment
 
 1. Using the your favorite terminal or the terminal built-in to VSCode (which should pick up `.venv` automatically), run `source ./.venv/bin/activate`. This will do the magic of setting up your project in isolation from your global package manifest.
-1. Next, we need to get the dependencies for the project. You can do this by running `./make.py`. If you need to add dependencies, you can add them with `pip` as you normally would. Just make sure to run `./package.py` before committing back to the repo.
+2. Next, we need to get the dependencies for the project. You can do this by running `./make.py`. If you need to add dependencies, you can add them with `pip` as you normally would. Just make sure to run `./package.py` before committing back to the repo.
+3. If you are a Windows or Linux (non-Ubuntu) user, you might have to manually install `mdbtools` 
 
 #### Running The Application
 
 1. Get database credentials from @jigglepuff
 2. Run `python3 ./config.py`
+   - Enter hostname: `dbopenstl.johnkramlich.com`
+   - Enter database name: `openstl`
+   - Enter username: (Ask project lead for credentials)
+   - Enter password: (Ask project lead for credentials)
 3. Run `python3 ./app.py`.
 
 #### Deactivating Virtual Environment
