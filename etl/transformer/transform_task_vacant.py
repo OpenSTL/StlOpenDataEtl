@@ -2,6 +2,8 @@ import math
 import pandas_access as mdb
 from parcel_id import parcelId
 
+import fields
+
 filename = '/Users/davidwilcox/src/bldgcom-bldgres-prcl.mdb'
 
 def addParcelIdColumnToDf(df):
@@ -49,16 +51,12 @@ def transform_task_vacant():
         'ResHlfBath': 'HalfBaths',
         'Bath_Total': calculateBathTotal,
         'ComGrdFlr': 'GroundFloorArea',
-        # In prcl, this is a string with the number of stories for the building e.g. 2 stories
-        'ResStories': 'TODO', # TODO: not sure how to extract from BldgRes. There is a 'ResStoriesCode' which we may have to translate. 
+        'ResStories': fields.resStories,
         'Ward10': 'Ward10',
         'ResAttic': 'Attic',
-        # Either full basement, partial basement or 0
-        'ResBsmt': 'TODO', # TODO: not sure how to extract from BldgRes. I spy a BsmtType and BsmtFinishType
-        # Either brick or 0
-        'ResExtWall': 'TODO', # TODO: translate ResExtWallType code
-        # brick & wood, brick & steel, brick & concrete; I would include the full text as I think buyers would want to know if it's a concrete foundation
-        'ComConst': 'TODO', # TODO: BldgCom has codes like BW; our db has full text like "Brick & Wood"; which do we want?
+        'ResBsmt': fields.resBsmt,
+        'ResExtWall': fields.resExtWall,
+        'ComConst': fields.comConst,
         'ResOccType': 'TODO', # TODO: translate ResOccType code # one family, two family, four family, 0
         'ResGarage': 'TODO', # 1 = present, 0 = none
         'ResCH': 'CentralHeating',
