@@ -1,40 +1,57 @@
-import json
+import 'stl-vocab-files' as StlVocabFiles
 
-def stlVocabFileToDict(filename):
-  with open(filename) as f:
-    vocabFile = json.load(f)
+stlVocab = StlVocabFiles.getStlVocab()
 
-  identifierToText = {}
-  for vocabElement in vocabFile:
-    identifierToText[vocabElement['IDENTIFIER']] = vocabElement['TITLE']
-
-  return identifierToText
-
-bsmtDict = stlVocabFileToDict('./data/residential-building-basement-type.json')
-comConstDict = stlVocabFileToDict('./data/commercial-building-construction-type.json')
-extWallDict = stlVocabFileToDict('./data/residential-building-exterior-wall-type.json')
-storiesDict = stlVocabFileToDict('./data/residential-building-stories-code.json')
+def calculateBathTotal(row):
+    try:
+        return float(row['FullBaths']) + 0.5 * float(row['HalfBaths'])
+    except: # nan
+        return 0
 
 def comConst(row):
-  return comConstDict.get(
+  return stlVocab['commercial-building-construction-type'].get(
     row['ComConst'],
     0,
   )
 
+def garageTotal(row):
+  garages = 0
+  if (row['Garage1']) garages += 1
+  if (row['Garage2']) garages += 1
+  return garages
+
+def neighborhoodName(row):
+  return stlVocab['neighborhood'].get(
+    row['Nbrhd'],
+    0
+  )
+
 def resBsmt(row):
-  return bsmtDict.get(
+  return stlVocab['residential-building-basement-type'].get(
     row['BsmtType'],
     0
   )
 
+def resBsmtFinishType(row):
+  return stlVocab['residential-building-basement-finish-type'].get(
+    row['BsmtFinishType'],
+    0
+  )
+
 def resExtWall(row):
-  return extWallDict.get(
+  return stlVocab['residential-building-exterior-wall-type'].get(
     row['ResExtWallType'],
     0
   )
 
+def resOccType(row):
+  return stlVocab['residential-building-occupancy-type'].get(
+    row['ResOccType'],
+    0
+  )
+
 def resStories(row):
-  return storiesDict.get(
+  return stlVocab['residential-building-stories-code'].get(
     row['ResStoriesCode'],
     0
   )

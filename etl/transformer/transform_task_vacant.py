@@ -22,12 +22,6 @@ def keepOnlySelectColumnsInDf(df, columnsToKeep):
 def loadTable(tableName):
     return mdb.read_table(filename, tableName)
 
-def calculateBathTotal(row):
-    try:
-        return float(row['FullBaths']) + 0.5 * float(row['HalfBaths'])
-    except: # nan
-        return 0
-
 def transform_task_vacant():
     # vacancy app table is dependent on these three tables from prcl.mdb
     # we will merge the tables together based on ParcelId and then calculate
@@ -43,13 +37,13 @@ def transform_task_vacant():
     vacantMapping = {
         'Handle': 'Handle',
         'Nbrhd': 'Nbrhd',
-        'NHD_NAME': 'TODO',
+        'NHD_NAME': fields.neighborhoodName,
         'SITEADDR': 'TODO',
         'ZIP': 'ZIP',
-        'VacCatText': 'TODO', # All rows say Vacant Building
+        'VacCatText': 'TODO',   # Transform field, but what's the code?
         'ResFullBat': 'FullBaths',
         'ResHlfBath': 'HalfBaths',
-        'Bath_Total': calculateBathTotal,
+        'Bath_Total': fields.calculateBathTotal,
         'ComGrdFlr': 'GroundFloorArea',
         'ResStories': fields.resStories,
         'Ward10': 'Ward10',
@@ -57,11 +51,10 @@ def transform_task_vacant():
         'ResBsmt': fields.resBsmt,
         'ResExtWall': fields.resExtWall,
         'ComConst': fields.comConst,
-        'ResOccType': 'TODO', # TODO: translate ResOccType code # one family, two family, four family, 0
-        'ResGarage': 'TODO', # 1 = present, 0 = none
+        'ResOccType': fields.resOccType,
+        'ResGarage': fields.garageTotal,
         'ResCH': 'CentralHeating',
-        # finished, unfinished, dirt floor, 0
-        'ResBmFin': 'TODO', # TODO: another translation one
+        'ResBmFin': fields.resBsmtFinishType,
         'SqFt': 'TODO', # numeric value of total house square footage
         'Acres': 'TODO', # lot size
         # TODO: VB_decimal, NC_decimal, SL_decimal are computed in DB and rely on other fields (VB, NC, SL) that we will need to set
