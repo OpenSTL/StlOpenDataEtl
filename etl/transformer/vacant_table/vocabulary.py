@@ -1,6 +1,7 @@
+import os
 import json
 
-def stlVocabFileToDict(filename):
+def vocabularyFileToDictionary(filename):
   with open(filename) as f:
     vocabFile = json.load(f)
 
@@ -10,8 +11,8 @@ def stlVocabFileToDict(filename):
 
   return identifierToText
 
-def getStlVocab():
-    stlVocabFiles = [
+def getVocabularyDictionaries():
+    vocabularyFiles = [
       'commercial-building-construction-type',
       'residential-building-basement-finish-type',
       'residential-building-basement-type',
@@ -21,8 +22,11 @@ def getStlVocab():
       'neighborhood'
     ]
 
-    stlVocab = {}
-    for fileId in stlVocabFiles:
-      stlVocab[fileId] = stlVocabFileToDict('./data/' + fileId + '.json')
+    vocabDictionaries = {}
+    for fileId in vocabularyFiles:
+      relativeFilename = os.path.join('./vocabulary_data/' + fileId + '.json')
+      curdir = os.path.dirname(os.path.abspath(__file__))
+      filename = os.path.join(curdir, relativeFilename)
+      vocabDictionaries[fileId] = vocabularyFileToDictionary(filename)
 
-    return stlVocab
+    return vocabDictionaries
