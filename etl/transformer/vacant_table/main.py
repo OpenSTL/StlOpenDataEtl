@@ -7,6 +7,7 @@ def keepOnlySelectColumnsInDf(df, columnsToKeep):
 # transform extractor output into dataframe resembling "vacant" table
 # df = dictionary of dataframes from extractor
 def transform_vacant_table(df):
+    print('starting transformer vacant_table')
 
     # merge parcel data into a single dataframe with a "one row = one parcel" format
     fullyMergedPrcl = mergeParcelDataIntoSingleDataframe(df)
@@ -19,6 +20,5 @@ def transform_vacant_table(df):
     keepOnlySelectColumnsInDf(fullyMergedPrcl, vacantMapping.keys())
     
     print(fullyMergedPrcl)
-    print('done')
 
     fullyMergedPrcl.to_csv('merged.csv', index=False)
