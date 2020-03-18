@@ -13,9 +13,10 @@ SBN = '.sbn'  # .shp support file
 SBX = '.sbx'  # .shp support file
 SHP = '.shp'  # shapes
 SHX = '.shx'  # .shp support file
+PRJ = '.prj'  # .shp support file
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-SUPPORTED_FILE_EXT = [CSV, DBF, MDB, SBN, SBX, SHP, SHX]
+SUPPORTED_FILE_EXT = [CSV, DBF, MDB, SBN, SBX, SHP, SHX, PRJ]
 
 if __name__ == '__main__':
     commandLineArgs = command_line_args.getCommandLineArgs()

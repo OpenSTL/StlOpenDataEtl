@@ -121,8 +121,6 @@ class Extractor:
 
             shapeFilename = os.path.join(SCRATCH_DIR, shapefile.filename)
             dataframe = geopandas.read_file(shapeFilename)
-            # define geospatial projection
-            dataframe.crs = {'init': 'epsg:32633'}
             return {shapefile.filename: dataframe}
 
         finally:

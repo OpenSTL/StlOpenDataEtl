@@ -2,28 +2,18 @@ from .vocabulary import getVocabularyDictionaries
 
 vocabData = getVocabularyDictionaries()
 
-def calculateKmSq():
-    # Convert geospatial area to km^2
+def calculateSqFt(row):
     try:
-        return float(row['geometry'].area/ 10**6)
+        return float(row['geometry'].area)
     except: # nan
         return 0
 
-def calculateSqFt():
-    # Constant
-    KM_PER_FT = 3280.84
-    # Convert km^2 to sqft
-    try:
-        return float(calculateKmSq()*(KM_PER_FT**2))
-    except: # nan
-        return 0
-
-def calculateAcres():
+def calculateAcres(row):
     # Constant
     SQFT_PER_ACRE = 43560
     # Convert sqft to acre
     try:
-        return float(calculateSqFt()/(SQFT_PER_ACRE))
+        return float(calculateSqFt(row)/(SQFT_PER_ACRE))
     except: # nan
         return 0
 
