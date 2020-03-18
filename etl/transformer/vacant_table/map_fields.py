@@ -1,4 +1,4 @@
-import fields
+from etl.transformer.vacant_table import fields
 
 # vacantMapping dictionary format:
 #   'column in final table': 'column data source'
