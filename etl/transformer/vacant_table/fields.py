@@ -1,4 +1,4 @@
-from vocabulary import getVocabularyDictionaries
+from etl.transformer.vacant_table.vocabulary import getVocabularyDictionaries
 
 vocabData = getVocabularyDictionaries()
 

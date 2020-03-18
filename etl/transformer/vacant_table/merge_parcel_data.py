@@ -1,4 +1,4 @@
-from parcel_id import parcelId
+from etl.transformer.vacant_table.parcel_id import parcelId
 
 # df = dictionary of dataframes from extractor
 # merge Parcel-related dataframes into a single dataframe using parcel id as a merge index

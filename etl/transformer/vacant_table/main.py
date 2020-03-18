@@ -1,5 +1,5 @@
-from map_fields import mapRawFieldsToVacantTableFields, vacantMapping
-from merge_parcel_data import mergeParcelDataIntoSingleDataframe
+from etl.transformer.vacant_table.map_fields import mapRawFieldsToVacantTableFields, vacantMapping
+from etl.transformer.vacant_table.merge_parcel_data import mergeParcelDataIntoSingleDataframe
 
 def keepOnlySelectColumnsInDf(df, columnsToKeep):
     df.drop(df.columns.difference(columnsToKeep), axis=1, inplace=True)
