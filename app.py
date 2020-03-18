@@ -3,7 +3,7 @@ StlOpenDataEtl
 '''
 
 import os
-from etl import fetcher, fetcher_local, parser, extractor, loader, utils
+from etl import command_line_args, fetcher, fetcher_local, parser, extractor, loader, utils
 from etl.transformer.vacant_table.main import transform_vacant_table
 
 CSV = '.csv'  # comma separated values
@@ -18,10 +18,18 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 SUPPORTED_FILE_EXT = [CSV, DBF, MDB, SBN, SBX, SHP, SHX]
 
 if __name__ == '__main__':
+    commandLineArgs = command_line_args.getCommandLineArgs()
+
     # Fetcher
-    fetcher = fetcher.Fetcher()
-    src_yaml = utils.get_yaml('data/sources/sources.yml')
-    responses = fetcher.fetch_all(src_yaml)
+    if (commandLineArgs.local_sources):
+        print('using local data files', commandLineArgs.local_sources)
+        fetcher = fetcher_local.FetcherLocal()
+        filenames = commandLineArgs.local_sources
+        responses = fetcher.fetch_all(filenames)
+    else:
+        fetcher = fetcher.Fetcher()
+        src_yaml = utils.get_yaml('data/sources/sources.yml')
+        responses = fetcher.fetch_all(src_yaml)
 
     # Parser
     parser = parser.Parser()

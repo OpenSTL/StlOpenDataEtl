@@ -1,5 +1,5 @@
-from etl.transformer.vacant_table.map_fields import mapRawFieldsToVacantTableFields, vacantMapping
-from etl.transformer.vacant_table.merge_parcel_data import mergeParcelDataIntoSingleDataframe
+from .map_fields import mapRawFieldsToVacantTableFields, vacantMapping
+from .merge_parcel_data import mergeParcelDataIntoSingleDataframe
 
 def keepOnlySelectColumnsInDf(df, columnsToKeep):
     df.drop(df.columns.difference(columnsToKeep), axis=1, inplace=True)
@@ -7,6 +7,7 @@ def keepOnlySelectColumnsInDf(df, columnsToKeep):
 # transform extractor output into dataframe resembling "vacant" table
 # df = dictionary of dataframes from extractor
 def transform_vacant_table(df):
+    print('starting transformer vacant_table')
 
     # merge parcel data into a single dataframe with a "one row = one parcel" format
     fullyMergedPrcl = mergeParcelDataIntoSingleDataframe(df)
@@ -19,6 +20,5 @@ def transform_vacant_table(df):
     keepOnlySelectColumnsInDf(fullyMergedPrcl, vacantMapping.keys())
     
     print(fullyMergedPrcl)
-    print('done')
 
     fullyMergedPrcl.to_csv('merged.csv', index=False)
