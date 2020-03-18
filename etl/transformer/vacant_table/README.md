@@ -9,7 +9,8 @@ This is not complete. Needs help completing all of the computed fields and with 
 # Run instructions
 1. Setup venv and requirements per the root README
 1. Download prcl.mdb or get a modified mdb with only the three important tables. See main.test.py for a list of the "important" tables. Using only the important tables will cut down processing time if you are testing the transformer by itself.
-1. Change `filename` in `main.test.py` to point to your prcl.mdb
+1. Download par.dbf
+1. Change `filenameParDbf` and `filenamePrclMdb` in `main.test.py` to point to your downloaded database files from the previous steps.
 1. Run `python etl/transformer/vacant_table/main.test.py`
 
 # Known Issues

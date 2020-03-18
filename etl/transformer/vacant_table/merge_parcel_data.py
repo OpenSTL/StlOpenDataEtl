@@ -24,6 +24,14 @@ def mergeParcelDataIntoSingleDataframe(df):
         on='ParcelId'
     )
 
+    print('merge par.dbf with prcl')
+    fullyMergedPrcl = fullyMergedPrcl.merge(
+        right=df['par.dbf'],
+        how='left',
+        left_on='Handle',
+        right_on='HANDLE'
+    )
+
     return fullyMergedPrcl
 
 def addParcelIdColumnToDf(df):

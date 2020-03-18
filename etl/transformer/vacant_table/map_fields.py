@@ -10,7 +10,7 @@ vacantMapping = {
     'Handle': 'Handle',
     'Nbrhd': 'Nbrhd',
     'NHD_NAME': fields.neighborhoodName,
-    'SITEADDR': 'TODO',
+    'SITEADDR': 'SITEADDR',
     'ZIP': 'ZIP',
     'VacCatText': 'TODO',   # this is another "code to text" translation field, but the vocabulary isn't on the stl website.
     'ResFullBat': 'FullBaths',
