@@ -27,8 +27,8 @@ vacantMapping = {
     'ResGarage': fields.garageTotal,
     'ResCH': 'CentralHeating',
     'ResBmFin': fields.resBsmtFinishType,
-    'SqFt': 'TODO', # numeric value of total house square footage
-    'Acres': 'TODO', # lot size
+    'SqFt': fields.calculateSqFt, # numeric value of total house square footage
+    'Acres': fields.calculateAcres, # lot size
     # TODO: VB_decimal, NC_decimal, SL_decimal are computed in DB and rely on other fields (VB, NC, SL) that we will need to set
     'ResSalePri': 'ResSalePri',
     'Parcel': 'Parcel',
@@ -50,4 +50,3 @@ def mapRawFieldsToVacantTableFields(fullyMergedPrcl):
                 fullyMergedPrcl[column] = fullyMergedPrcl[source]
         else:
             fullyMergedPrcl[column] = fullyMergedPrcl.apply(source, axis=1)
-

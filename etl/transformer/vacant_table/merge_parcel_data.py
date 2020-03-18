@@ -32,6 +32,14 @@ def mergeParcelDataIntoSingleDataframe(df):
         right_on='HANDLE'
     )
 
+    print('merge prcl.shp with prcl')
+    fullyMergedPrcl = fullyMergedPrcl.merge(
+        right=df['prcl.shp'],
+        how='left',
+        left_on='Handle',
+        right_on='HANDLE'
+    )
+
     return fullyMergedPrcl
 
 def addParcelIdColumnToDf(df):
@@ -43,4 +51,3 @@ def getParcelIdForRow(row):
         int(row['Parcel']),
         int(row['OwnerCode'])
     )
-
