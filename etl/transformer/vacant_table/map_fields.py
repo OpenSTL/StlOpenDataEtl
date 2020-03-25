@@ -35,10 +35,15 @@ vacantMapping = {
     'ParcelId': 'ParcelId'
 }
 
-# map raw STL fields to the fields used by the vacancy app
-# mapping occurs in place
-# fullyMergedPrcl = output of merging Prcl with other parcel related dataframes
 def mapRawFieldsToVacantTableFields(fullyMergedPrcl):
+    '''
+    Map raw fields from merged parcel data to the fields used by the vacancy app
+    Mapping occurs in-place.
+
+    Arguments:
+    fullyMergedPrcl -- output of merging Prcl with other parcel related dataframes
+    '''
+
     print('map data to columns')
     for column, source in vacantMapping.items():
         if column == source:
