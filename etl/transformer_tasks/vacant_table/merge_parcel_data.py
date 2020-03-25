@@ -46,14 +46,6 @@ def mergeParcelDataIntoSingleDataframe(df):
         right_on='HANDLE'
     )
 
-    print('-forestry data')
-    fullyMergedPrcl = fullyMergedPrcl.merge(
-        right=df['forestry-maintenance-properties.csv'],
-        how='left',
-        left_on='Handle',
-        right_on='HANDLE'
-    )
-
     return fullyMergedPrcl
 
 def addParcelIdColumnToDf(df):

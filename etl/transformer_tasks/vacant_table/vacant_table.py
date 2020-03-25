@@ -1,16 +1,20 @@
 from .map_fields import mapRawFieldsToVacantTableFields, vacantMapping
 from .merge_parcel_data import mergeParcelDataIntoSingleDataframe
 
-def keepOnlySelectColumnsInDf(df, columnsToKeep):
+def keep_only_select_columns_in_df(df, columnsToKeep):
     df.drop(df.columns.difference(columnsToKeep), axis=1, inplace=True)
 
-def transform_vacant_table(df):
+def vacant_table(df):
     '''
-    Transform extractor output into dataframe that resembles the 
+    Transform extractor output into a dataframe that resembles the 
     "vacant" table
 
     Arguments:
     df -- dictionary of dataframes from extractor
+
+    Returns:
+    Dataframe containing a list of records to be uploaded to
+    the vacant app table.
 
     '''
     print('starting transformer vacant_table')
@@ -23,8 +27,10 @@ def transform_vacant_table(df):
 
     # remove fields we don't need
     print('prune unneeded fields')
-    keepOnlySelectColumnsInDf(mergedParcelData, vacantMapping.keys())
+    keep_only_select_columns_in_df(mergedParcelData, vacantMapping.keys())
     
     print(mergedParcelData)
 
-    mergedParcelData.to_csv('merged.csv', index=False)
+    mergedParcelData.to_csv('transform_vacant_table.csv', index=False)
+
+    return mergedParcelData

@@ -3,8 +3,7 @@ StlOpenDataEtl
 '''
 
 import os
-from etl import command_line_args, fetcher, fetcher_local, parser, extractor, loader, utils
-from etl.transformer.vacant_table.main import transform_vacant_table
+from etl import command_line_args, extractor, fetcher, fetcher_local, loader, parser, transformer, utils
 
 CSV = '.csv'  # comma separated values
 DBF = '.dbf'  # dbase
@@ -61,7 +60,9 @@ if __name__ == '__main__':
             entity_dict.update(entities)
 
     # Transformer
-    transform_vacant_table(entity_dict)
+    transform_tasks = utils.get_yaml('data/transform_tasks/transform_tasks.yml')
+    transformer = transformer.Transformer()
+    transformed = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
     db_yaml = utils.get_yaml('data/database/config.yml')

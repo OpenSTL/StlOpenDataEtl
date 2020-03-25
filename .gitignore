@@ -142,3 +142,6 @@ dmypy.json
 
 # extractor scratch data folder
 scratch
+
+# vacant_table transformer debug output
+transform_vacant_table.csv
