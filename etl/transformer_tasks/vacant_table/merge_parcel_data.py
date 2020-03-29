@@ -31,16 +31,22 @@ def mergeParcelDataIntoSingleDataframe(df):
     )
 
     print('-par.dbf')
+    parDbf = df['par.dbf'].copy(deep=True)
+    # cast par.dbf pk to match prcl pk type
+    parDbf['HANDLE'] = parDbf['HANDLE'].astype(int)
     fullyMergedPrcl = fullyMergedPrcl.merge(
-        right=df['par.dbf'],
+        right=parDbf,
         how='left',
         left_on='Handle',
         right_on='HANDLE'
     )
 
     print('-prcl.shp')
+    prclShp = df['prcl.shp'].copy(deep=True)
+    # again we need to change the pk type to match prcl
+    prclShp['HANDLE'] = prclShp['HANDLE'].astype(int)
     fullyMergedPrcl = fullyMergedPrcl.merge(
-        right=df['prcl.shp'],
+        right=prclShp,
         how='left',
         left_on='Handle',
         right_on='HANDLE'

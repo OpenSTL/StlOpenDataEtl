@@ -30,6 +30,9 @@ vacantMapping = {
     'SqFt': fields.calculateSqFt, # numeric value of total house square footage
     'Acres': fields.calculateAcres, # lot size
     # TODO: VB_decimal, NC_decimal, SL_decimal are computed in DB and rely on other fields (VB, NC, SL) that we will need to set
+    'VB_decimal': 'TODO',
+    'NC_decimal': 'TODO',
+    'SL_decimal': 'TODO',
     'ResSalePri': 'ResSalePri',
     'Parcel': 'Parcel',
     'ParcelId': 'ParcelId'
