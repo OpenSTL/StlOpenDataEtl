@@ -52,7 +52,7 @@ class Extractor:
         # Use HANDLE as dataframe index
         # dataframe.set_index('HANDLE', inplace = True)
         # Return Entity object
-        return [Entity(payload.filename, dataframe)]
+        return {payload.filename: dataframe}
 
     # Extract .mdb data
     def get_mdb_data(self, payload):
@@ -71,16 +71,16 @@ class Extractor:
         # Get attributes that are of integer type
         integer_attributes = self.get_attributes_by_data_type(mdb_schema,'Long Integer')
 
-        # Declare entity list
-        entity_list = []
+        # Declare entity dict
+        entity_dict = dict()
         # Iterate through each table in database
         for tbl in pandas_access.list_tables(payload.filename):
                 # Issue: Default pandas integer type is not nullable - null values in integer column causes read error
                 # Workaround: Read integer as Int64 (pandas nullable integer type in pandas)
                 dtype_input = {attribute:'Int64' for attribute in integer_attributes[tbl]}
                 df = pandas_access.read_table(payload.filename, tbl, dtype = dtype_input)
-                entity_list.append(Entity(tbl,df))
-        return entity_list
+                entity_dict.update({tbl:df})
+        return entity_dict
 
     # Extract .dbf data
     def get_dbf_data(self, payload):
@@ -100,7 +100,7 @@ class Extractor:
         # Use HANDLE as dataframe index
         # dataframe.set_index('HANDLE', inplace = True)
         # Return Entity object
-        return [Entity(payload.filename, dataframe)]
+        return {payload.filename: dataframe}
 
     # Extract .shp data
     def get_shp_data(self, archive, shapefile):
@@ -121,7 +121,7 @@ class Extractor:
 
             shapeFilename = os.path.join(SCRATCH_DIR, shapefile.filename)
             dataframe = geopandas.read_file(shapeFilename)
-            return [Entity(shapefile.filename, dataframe)]
+            return {shapefile.filename: dataframe}
 
         finally:
             shutil.rmtree(SCRATCH_DIR)

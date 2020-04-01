@@ -3,24 +3,33 @@ StlOpenDataEtl
 '''
 
 import os
-from etl import fetcher, parser, extractor, loader, utils
+from etl import command_line_args, extractor, fetcher, fetcher_local, loader, parser, transformer, utils
 
 CSV = '.csv'  # comma separated values
 DBF = '.dbf'  # dbase
 MDB = '.mdb'  # microsoft access database (jet, access, etc.)
+PRJ = '.prj'  # .shp support file
 SBN = '.sbn'  # .shp support file
 SBX = '.sbx'  # .shp support file
 SHP = '.shp'  # shapes
 SHX = '.shx'  # .shp support file
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-SUPPORTED_FILE_EXT = [CSV, DBF, MDB, SBN, SBX, SHP, SHX]
+SUPPORTED_FILE_EXT = [CSV, DBF, MDB, PRJ, SBN, SBX, SHP, SHX]
 
 if __name__ == '__main__':
+    commandLineArgs = command_line_args.getCommandLineArgs()
+
     # Fetcher
-    fetcher = fetcher.Fetcher()
-    src_yaml = utils.get_yaml('data/sources/sources.yml')
-    responses = fetcher.fetch_all(src_yaml)
+    if (commandLineArgs.local_sources):
+        print('using local data files', commandLineArgs.local_sources)
+        fetcher = fetcher_local.FetcherLocal()
+        filenames = commandLineArgs.local_sources
+        responses = fetcher.fetch_all(filenames)
+    else:
+        fetcher = fetcher.Fetcher()
+        src_yaml = utils.get_yaml('data/sources/sources.yml')
+        responses = fetcher.fetch_all(src_yaml)
 
     # Parser
     parser = parser.Parser()
@@ -33,7 +42,8 @@ if __name__ == '__main__':
     # Extractor
     extractor = extractor.Extractor()
     # Master entity list
-    entity_list = []
+    entity_dict = dict()
+    entities = []
     for response in responses:
         for payload in response.payload:
             if utils.get_file_ext(payload.filename) == CSV:
@@ -45,14 +55,14 @@ if __name__ == '__main__':
             elif utils.get_file_ext(payload.filename) == SHP:
                 entities = extractor.get_shp_data(response, payload)
             else:
-                entities = []
+                entities = {}
             # Add to master entity list
-            entity_list.extend(entities)
+            entity_dict.update(entities)
 
     # Transformer
-    for entity in entity_list:
-        print(entity.tablename)
-
+    transform_tasks = utils.get_yaml('data/transform_tasks/transform_tasks.yml')
+    transformer = transformer.Transformer()
+    transformed = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
     db_yaml = utils.get_yaml('data/database/config.yml')

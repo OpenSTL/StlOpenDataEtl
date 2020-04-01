@@ -43,6 +43,12 @@ There are a lot of resources for doing this online, but I recommend the followin
    - Enter password: (Ask project lead for credentials)
 3. Run `python3 ./app.py`.
 
+#### Command Line Options
+`--local-sources` Use local files instead of downloading from the internet - this drastically reduces startup times while testing.
+```bash
+python3 ./app.py --local-sources file1.mdb file2.mdb ...
+```
+
 #### Deactivating Virtual Environment
 
 1. Run `deactivate`.
