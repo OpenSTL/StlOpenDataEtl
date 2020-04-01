@@ -1,6 +1,6 @@
-from .parcel_id import parcelId
+from .parcel_id import parcel_id
 
-def mergeParcelDataIntoSingleDataframe(df):
+def merge_parcel_data(df):
     '''
     Merge Parcel-related dataframes into a single dataframe using parcel id as a merge index.
     Only merges the dataframes we need to construct the "vacant" table
@@ -12,8 +12,8 @@ def mergeParcelDataIntoSingleDataframe(df):
 
     # add ParcelId as a merge index
     print('add ParcelId to bldgcom, bldgres')
-    addParcelIdColumnToDf(df['BldgCom'])
-    addParcelIdColumnToDf(df['BldgRes'])
+    add_parcel_id_column_to_df(df['BldgCom'])
+    add_parcel_id_column_to_df(df['BldgRes'])
 
     print('merge tables with prcl')
     print('-BldgCom')
@@ -29,6 +29,9 @@ def mergeParcelDataIntoSingleDataframe(df):
         how='left',
         on='ParcelId'
     )
+
+    # convert pk to int so we can merge with other data sources
+    fullyMergedPrcl['Handle'] = fullyMergedPrcl['Handle'].astype(int)
 
     print('-par.dbf')
     parDbf = df['par.dbf'].copy(deep=True)
@@ -54,11 +57,11 @@ def mergeParcelDataIntoSingleDataframe(df):
 
     return fullyMergedPrcl
 
-def addParcelIdColumnToDf(df):
-    df['ParcelId'] = df.apply(getParcelIdForRow, axis=1)
+def add_parcel_id_column_to_df(df):
+    df['ParcelId'] = df.apply(get_parcel_id_for_row, axis=1)
 
-def getParcelIdForRow(row):
-    return parcelId(
+def get_parcel_id_for_row(row):
+    return parcel_id(
         float(row['CityBlock']),
         int(row['Parcel']),
         int(row['OwnerCode'])

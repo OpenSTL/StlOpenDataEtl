@@ -1,5 +1,5 @@
-from .map_fields import mapRawFieldsToVacantTableFields, vacantMapping
-from .merge_parcel_data import mergeParcelDataIntoSingleDataframe
+from .map_parcel_data_to_vacant_table import map_parcel_data_to_vacant_table, vacant_table_fields
+from .merge_parcel_data import merge_parcel_data
 
 def keep_only_select_columns_in_df(df, columnsToKeep):
     df.drop(df.columns.difference(columnsToKeep), axis=1, inplace=True)
@@ -20,17 +20,17 @@ def vacant_table(df):
     print('starting transformer vacant_table')
 
     # merge parcel data into a single dataframe with a "one row = one parcel" format
-    mergedParcelData = mergeParcelDataIntoSingleDataframe(df)
+    merged_parcel_data = merge_parcel_data(df)
 
-    # map raw fields into fields our Vacancy table uses
-    mapRawFieldsToVacantTableFields(mergedParcelData)
+    # map parcel data into fields used by our Vacancy table
+    map_parcel_data_to_vacant_table(merged_parcel_data)
 
     # remove fields we don't need
     print('prune unneeded fields')
-    keep_only_select_columns_in_df(mergedParcelData, vacantMapping.keys())
+    keep_only_select_columns_in_df(merged_parcel_data, vacant_table_fields.keys())
     
-    print(mergedParcelData)
+    print(merged_parcel_data)
 
-    mergedParcelData.to_csv('transform_vacant_table.csv', index=False)
+    merged_parcel_data.to_csv('transform_vacant_table.csv', index=False)
 
-    return mergedParcelData
+    return merged_parcel_data

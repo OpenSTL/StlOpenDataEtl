@@ -1,12 +1,16 @@
 from . import fields
 
-# vacantMapping dictionary format:
-#   'column in final table': 'column data source'
-# source can be:
-# - the literal string 'TODO' (not implemented)
-# - a string, meaning a direct map from another column
-# - a function which iterates over every row, receives the existing row as a parameter, and returns the value for the column in the final table
-vacantMapping = {
+'''
+vacant_table_fields is a dictionary representing every field in the "vacant" table
+the key is a field name in the vacant table
+the value explains how to derive the field from the raw parcel data
+the value can be:
+- the literal string 'TODO', representing a field that we don't know how to derive yet
+- a string, meaning a direct map from another column
+- a function which iterates over every row, receives the existing row as a parameter, and returns the value for the column in the final table
+if you want a field in the final "vacant" table, make sure it is here. all other fields will be pruned.
+'''
+vacant_table_fields = {
     'Handle': 'Handle',
     'Nbrhd': 'Nbrhd',
     'NHD_NAME': fields.neighborhoodName,
@@ -38,23 +42,22 @@ vacantMapping = {
     'ParcelId': 'ParcelId'
 }
 
-def mapRawFieldsToVacantTableFields(fullyMergedPrcl):
+def map_parcel_data_to_vacant_table(merged_parcel_data):
     '''
-    Map raw fields from merged parcel data to the fields used by the vacancy app
+    Map aggregated parcel data to the fields used by the vacancy app.
     Mapping occurs in-place.
 
     Arguments:
-    fullyMergedPrcl -- output of merging Prcl with other parcel related dataframes
+    merged_parcel_data -- output of merging Prcl with other parcel related dataframes
     '''
 
     print('map data to columns')
-    for column, source in vacantMapping.items():
+    for column, source in vacant_table_fields.items():
         if column == source:
             continue
         elif source == 'TODO':
             print('-- TODO implement field %s' % column)
         elif type(source) == str:
-            if column != source:
-                fullyMergedPrcl[column] = fullyMergedPrcl[source]
+            merged_parcel_data[column] = merged_parcel_data[source]
         else:
-            fullyMergedPrcl[column] = fullyMergedPrcl.apply(source, axis=1)
+            merged_parcel_data[column] = merged_parcel_data.apply(source, axis=1)
