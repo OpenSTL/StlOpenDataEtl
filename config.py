@@ -25,7 +25,7 @@ credentials = dict(
     )
 )
 # Make directory if doesn't already exist
-filename = 'data/database/config.yml'
+filename = 'data/database/config_prod.yml'
 if not os.path.exists(os.path.dirname(filename)):
     try:
         os.makedirs(os.path.dirname(filename))

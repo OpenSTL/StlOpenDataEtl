@@ -3,6 +3,7 @@ StlOpenDataEtl
 '''
 
 import os
+import logging
 from etl import command_line_args, extractor, fetcher, fetcher_local, loader, parser, transformer, utils
 
 CSV = '.csv'  # comma separated values
@@ -19,6 +20,15 @@ SUPPORTED_FILE_EXT = [CSV, DBF, MDB, PRJ, SBN, SBX, SHP, SHX]
 
 if __name__ == '__main__':
     commandLineArgs = command_line_args.getCommandLineArgs()
+
+    # Load database config
+    # notify user if the app will be using test or prod db
+    if (commandLineArgs.db == 'prod'):
+        print('Using production database...')
+        db_yaml = utils.get_yaml('data/database/config_prod.yml')
+    else:
+        print('Using local database...')
+        db_yaml = utils.get_yaml('data/database/config_dev.yml')
 
     # Fetcher
     if (commandLineArgs.local_sources):
@@ -65,7 +75,8 @@ if __name__ == '__main__':
     transformed = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
-    db_yaml = utils.get_yaml('data/database/config.yml')
+    # read loader config
     loader = loader.Loader(db_yaml)
+    # connect to database
     loader.connect()
-    # TODO: insert, update tables using loader class
+    loader.insert(transformed)

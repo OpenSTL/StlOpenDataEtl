@@ -31,27 +31,51 @@ There are a lot of resources for doing this online, but I recommend the followin
 
 1. Using the your favorite terminal or the terminal built-in to VSCode (which should pick up `.venv` automatically), run `source ./.venv/bin/activate`. This will do the magic of setting up your project in isolation from your global package manifest.
 2. Next, we need to get the dependencies for the project. You can do this by running `./make.py`. If you need to add dependencies, you can add them with `pip` as you normally would. Just make sure to run `./package.py` before committing back to the repo.
-3. If you are a Windows or Linux (non-Ubuntu) user, you might have to manually install `mdbtools` 
+3. If you are a Windows or Linux (non-Ubuntu) user, you might have to manually install `mdbtools`
 
-#### Running The Application
+#### Running the Application
+If you're running the application locally on your PC, use the following instructions. This will create a local test database.
+1. Run `python3 ./app.py`.
 
+#### Command Line Options
+`--db test` Use local test database. If not option not specified, application defaults to using test database.
+`--db prod` Use production database.
+
+`--local-sources` Use local files instead of downloading from the internet - this drastically reduces startup times while testing.
+
+###### Examples:
+1. Fetch local sources, and commit to local test database.
+```bash
+python3 ./app.py --local-sources file1.mdb file2.dbf
+```
+or
+```bash
+python3 ./app.py --db test --local-sources file1.mdb file2.dbf
+```
+2. Fetch from original sources from the Internet, and commit to local test database.
+```bash
+python3 ./app.py
+```
+or
+```bash
+python3 ./app.py --db test
+```
+
+#### Deactivating Virtual Environment
+
+1. Run `deactivate`.
+
+#### Running the Application with Production Database
+If you're running the application to integrate with production database, use the following instructions. For development, you most likely will not need this.
 1. Get database credentials from @jigglepuff
 2. Run `python3 ./config.py`
    - Enter hostname: `dbopenstl.johnkramlich.com`
    - Enter database name: `openstl`
    - Enter username: (Ask project lead for credentials)
    - Enter password: (Ask project lead for credentials)
-3. Run `python3 ./app.py`.
+3. Run `python3 ./app.py --db prod`.
 
-#### Command Line Options
-`--local-sources` Use local files instead of downloading from the internet - this drastically reduces startup times while testing.
-```bash
-python3 ./app.py --local-sources file1.mdb file2.mdb ...
-```
 
-#### Deactivating Virtual Environment
-
-1. Run `deactivate`.
 
 ## Components
 
