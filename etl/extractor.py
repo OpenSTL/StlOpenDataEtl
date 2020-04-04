@@ -63,24 +63,27 @@ class Extractor:
         payload -- payload object (str,binary)
         '''
         # TODO: find a way to directly pass byteio to reading utility without writing to disk
-        # Write to bytes to disk
-        open(payload.filename, 'wb').write(payload.data.getvalue())
+        try:
+            # Write to bytes to disk
+            open(payload.filename, 'wb').write(payload.data.getvalue())
 
-        # Get database schema
-        mdb_schema = pandas_access.read_schema(payload.filename)
-        # Get attributes that are of integer type
-        integer_attributes = self.get_attributes_by_data_type(mdb_schema,'Long Integer')
+            # Get database schema
+            mdb_schema = pandas_access.read_schema(payload.filename)
+            # Get attributes that are of integer type
+            integer_attributes = self.get_attributes_by_data_type(mdb_schema,'Long Integer')
 
-        # Declare entity dict
-        entity_dict = dict()
-        # Iterate through each table in database
-        for tbl in pandas_access.list_tables(payload.filename):
-                # Issue: Default pandas integer type is not nullable - null values in integer column causes read error
-                # Workaround: Read integer as Int64 (pandas nullable integer type in pandas)
-                dtype_input = {attribute:'Int64' for attribute in integer_attributes[tbl]}
-                df = pandas_access.read_table(payload.filename, tbl, dtype = dtype_input)
-                entity_dict.update({tbl:df})
-        return entity_dict
+            # Declare entity dict
+            entity_dict = dict()
+            # Iterate through each table in database
+            for tbl in pandas_access.list_tables(payload.filename):
+                    # Issue: Default pandas integer type is not nullable - null values in integer column causes read error
+                    # Workaround: Read integer as Int64 (pandas nullable integer type in pandas)
+                    dtype_input = {attribute:'Int64' for attribute in integer_attributes[tbl]}
+                    df = pandas_access.read_table(payload.filename, tbl, dtype = dtype_input)
+                    entity_dict.update({tbl:df})
+            return entity_dict
+        finally:
+            shutil.rmtree(SCRATCH_DIR)
 
     # Extract .dbf data
     def get_dbf_data(self, payload):
@@ -91,16 +94,19 @@ class Extractor:
         payload -- payload object (str,binary)
         '''
         # TODO: find a way to directly pass byteio into DBFobj without writing to disk
-        # Write bytes to disk
-        open(payload.filename, 'wb').write(payload.data.getvalue())
-        # Create DBF object
-        table = DBFobj(payload.filename)
-        # Convert DBF object to dataframe
-        dataframe = pd.DataFrame(iter(table))
-        # Use HANDLE as dataframe index
-        # dataframe.set_index('HANDLE', inplace = True)
-        # Return Entity object
-        return {payload.filename: dataframe}
+        try:
+            # Write bytes to disk
+            open(payload.filename, 'wb').write(payload.data.getvalue())
+            # Create DBF object
+            table = DBFobj(payload.filename)
+            # Convert DBF object to dataframe
+            dataframe = pd.DataFrame(iter(table))
+            # Use HANDLE as dataframe index
+            # dataframe.set_index('HANDLE', inplace = True)
+            # Return Entity object
+            return {payload.filename: dataframe}
+        finally:
+            shutil.rmtree(SCRATCH_DIR)
 
     # Extract .shp data
     def get_shp_data(self, archive, shapefile):
