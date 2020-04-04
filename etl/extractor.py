@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import pandas_access
 import shutil
+from etl import utils
 from dbfread import DBF as DBFobj
 from io import StringIO
 from etl.entity import Entity
@@ -83,7 +84,7 @@ class Extractor:
                     entity_dict.update({tbl:df})
             return entity_dict
         finally:
-            shutil.rmtree(SCRATCH_DIR)
+            utils.silentremove(payload.filename)
 
     # Extract .dbf data
     def get_dbf_data(self, payload):
@@ -106,7 +107,7 @@ class Extractor:
             # Return Entity object
             return {payload.filename: dataframe}
         finally:
-            shutil.rmtree(SCRATCH_DIR)
+            utils.silentremove(payload.filename)
 
     # Extract .shp data
     def get_shp_data(self, archive, shapefile):

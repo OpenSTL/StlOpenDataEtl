@@ -48,3 +48,11 @@ def decompress(archive_binary_data, supported_file_extensions=None):
         decompressed_files.append(PayloadData(
             name, BytesIO(archive.read(name))))
     return decompressed_files
+
+# remove a file,surpress error if file removal fails
+def silentremove(filename):
+    try:
+        os.remove(filename)
+    except OSError as e: # this would be "except OSError, e:" before Python 2.6
+        if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
+            raise # re-raise exception if a different error occurred
