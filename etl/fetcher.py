@@ -16,6 +16,10 @@ from urllib.error import URLError
 
 class Fetcher:
 
+    # Initializer / Instance Attributes
+    def __init__(self, pbar):
+        self.pbar = pbar
+
     def fetch_all(self, src_yaml):
         '''
         Returns a list of fetcher data objects as defined below.

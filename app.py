@@ -3,7 +3,13 @@ StlOpenDataEtl
 '''
 
 import os
-from etl import command_line_args, extractor, fetcher, fetcher_local, loader, parser, transformer, utils
+import sys
+import logging.config
+import constants
+from etl import progress_bar, command_line_args, extractor, fetcher, fetcher_local, loader, parser, transformer, utils
+import progressbar
+
+progressbar.streams.wrap_stderr()
 
 CSV = '.csv'  # comma separated values
 DBF = '.dbf'  # dbase
@@ -18,16 +24,24 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 SUPPORTED_FILE_EXT = [CSV, DBF, MDB, PRJ, SBN, SBX, SHP, SHX]
 
 if __name__ == '__main__':
+    # initialize logging
+    logging.config.fileConfig('data/logger/config.ini')
+    logger = logging.getLogger(__name__)
+
+    # initialize progress bar
+    pbar = progress_bar.ProgressBar(100)
+
+    # Parse Command line arguments
     commandLineArgs = command_line_args.getCommandLineArgs()
 
     # Fetcher
     if (commandLineArgs.local_sources):
-        print('using local data files', commandLineArgs.local_sources)
-        fetcher = fetcher_local.FetcherLocal()
+        logger.debug('Using local data files: %s', commandLineArgs.local_sources)
+        fetcher = fetcher_local.FetcherLocal(pbar,logger)
         filenames = commandLineArgs.local_sources
         responses = fetcher.fetch_all(filenames)
     else:
-        fetcher = fetcher.Fetcher()
+        fetcher = fetcher.Fetcher(pbar)
         src_yaml = utils.get_yaml('data/sources/sources.yml')
         responses = fetcher.fetch_all(src_yaml)
 
@@ -35,9 +49,14 @@ if __name__ == '__main__':
     parser = parser.Parser()
     for response in responses:
         try:
+            logger.debug('Parsing %s', response.name)
+            # set progress bar increment by passing in # of files to be parsed
+            pbar.set_increment(len(responses))
             response.payload = parser.flatten(response, SUPPORTED_FILE_EXT)
+            # update progress bar
+            pbar.update()
         except Exception as err:
-            print(err)
+            logging.error(err)
 
     # Extractor
     extractor = extractor.Extractor()
@@ -45,6 +64,9 @@ if __name__ == '__main__':
     entity_dict = dict()
     entities = []
     for response in responses:
+        # set progress bar increment by passing in # of files to be parsed
+        pbar.set_increment(len(responses))
+        logging.debug('Extracting %s', response.name)
         for payload in response.payload:
             if utils.get_file_ext(payload.filename) == CSV:
                 entities = extractor.get_csv_data(payload)
@@ -58,6 +80,8 @@ if __name__ == '__main__':
                 entities = {}
             # Add to master entity list
             entity_dict.update(entities)
+        # update progress bar
+        pbar.update()
 
     # Transformer
     transform_tasks = utils.get_yaml('data/transform_tasks/transform_tasks.yml')
@@ -67,5 +91,6 @@ if __name__ == '__main__':
     # Loader
     db_yaml = utils.get_yaml('data/database/config.yml')
     loader = loader.Loader(db_yaml)
+
     loader.connect()
     # TODO: insert, update tables using loader class
