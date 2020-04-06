@@ -3,7 +3,6 @@ from etl.payload_data import PayloadData
 from io import BytesIO
 import os
 from posixpath import basename
-import constants
 import logging
 
 # local testing replacement for Fetcher
@@ -12,14 +11,15 @@ import logging
 class FetcherLocal:
 
     # Initializer / Instance Attributes
-    def __init__(self, pbar,logger):
-        self.pbar = pbar
-        self.logger = logger
-        # self.logger = logging.getLogger(__name__)
+    def __init__(self, pbar_manager):
+        self.pbar_manager = pbar_manager
+        self.logger = logging.getLogger(__name__)
 
     def fetch_all(self, filenames):
-        # set progress bar increment by passing in # of files to be fetched
-        self.pbar.set_increment(len(filenames))
+        # Setup Fetch stage progress bar
+        job_count = len(filenames)
+        self.pbar = self.pbar_manager.counter(total=job_count, desc=__name__)
+
         fetchedFiles = []
 
         for filename in filenames:
@@ -28,6 +28,8 @@ class FetcherLocal:
             fetchedFiles.append(file)
             # update progress bar
             self.pbar.update()
+        # Close progress bar
+        self.pbar.close()
         return fetchedFiles
 
     def fetch(self, filename):

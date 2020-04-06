@@ -12,8 +12,10 @@ class Loader:
     _config = None
 
     # Initializer / Instance Attributes
-    def __init__(self,config_yaml):
+    def __init__(self, config_yaml, pbar_manager):
         self._config = config_yaml
+        self.pbar_manager = pbar_manager
+        self.logger = logging.getLogger(__name__)
 
     # Get credentials from yaml config
     def get_credentials(self, config_yaml, match_key):

@@ -12,22 +12,32 @@ from io import BytesIO
 from urllib.request import urlopen
 from urllib.parse import urlparse
 from urllib.error import URLError
+import logging
 
 
 class Fetcher:
 
     # Initializer / Instance Attributes
-    def __init__(self, pbar):
-        self.pbar = pbar
+    def __init__(self, pbar_manager):
+        self.pbar_manager = pbar_manager
+        self.logger = logging.getLogger(__name__)
 
     def fetch_all(self, src_yaml):
         '''
         Returns a list of fetcher data objects as defined below.
         '''
+        # Setup Fetch stage progress bar
+        job_count = len(src_yaml.keys())
+        self.pbar = self.pbar_manager.counter(total=job_count, desc=__name__)
+
         data = []
         for key in src_yaml.keys():
+            self.logger.debug("Fetching data: %s", key)
             data.append(self.fetch(key, src_yaml[key]['url']))
-
+            # update progress bar
+            self.pbar.update()
+        # Close progress bar
+        self.pbar.close()
         return data
 
     def fetch(self, name, url):

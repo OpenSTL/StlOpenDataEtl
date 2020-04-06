@@ -1,7 +1,10 @@
 from .transformer_tasks.vacant_table.vacant_table import vacant_table
+import logging
 
 class Transformer:
-    def __init__(self):
+    def __init__(self, pbar_manager):
+        self.pbar_manager = pbar_manager
+        self.logger = logging.getLogger(__name__)
         self.transform_tasks_to_transform_fns = {
             'vacant_table': vacant_table
         }
@@ -23,6 +26,10 @@ class Transformer:
         transformed['task_name'] = <output from transformer task>
 
         '''
+        # Setup Extract stage progress bar
+        job_count = len(transform_task_list)
+        self.pbar = self.pbar_manager.counter(total=job_count, desc=__name__)
+
         transformed = {}
 
         for task_name in transform_task_list:
@@ -31,9 +38,11 @@ class Transformer:
                 'not_found'
             )
             if (transform_task_fn == 'not_found'):
-                print('unknown transform task ' + task_name)
+                self.logger.error('unknown transform task ' + task_name)
                 continue
             transformed[task_name] = transform_task_fn(extracted)
-        
+            # update progress bar
+            self.pbar.update()
+        # Close progress bar
+        self.pbar.close()
         return transformed
-        

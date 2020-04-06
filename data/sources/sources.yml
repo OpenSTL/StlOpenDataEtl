@@ -7,7 +7,8 @@ prcl:
 par:
   url: https://www.stlouis-mo.gov/data/upload/data-files/par.zip
 
-lra_public:
+LRA_Iventory_Records:
+  info: https://www.stlouis-mo.gov/data/datasets/distribution.cfm?id=65
   url: https://www.stlouis-mo.gov/data/upload/data-files/lra_public.zip
 
 bldginsp:

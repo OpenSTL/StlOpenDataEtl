@@ -1,12 +1,13 @@
 from .map_parcel_data_to_vacant_table import map_parcel_data_to_vacant_table, vacant_table_fields
 from .merge_parcel_data import merge_parcel_data
+import logging
 
 def keep_only_select_columns_in_df(df, columnsToKeep):
     df.drop(df.columns.difference(columnsToKeep), axis=1, inplace=True)
 
 def vacant_table(df):
     '''
-    Transform extractor output into a dataframe that resembles the 
+    Transform extractor output into a dataframe that resembles the
     "vacant" table
 
     Arguments:
@@ -17,7 +18,8 @@ def vacant_table(df):
     the vacant app table.
 
     '''
-    print('starting transformer vacant_table')
+    elf.logger = logging.getLogger(__name__)
+    self.logger.debug('starting transformer vacant_table')
 
     # merge parcel data into a single dataframe with a "one row = one parcel" format
     merged_parcel_data = merge_parcel_data(df)
@@ -26,10 +28,10 @@ def vacant_table(df):
     map_parcel_data_to_vacant_table(merged_parcel_data)
 
     # remove fields we don't need
-    print('prune unneeded fields')
+    self.logger.debug('prune unneeded fields')
     keep_only_select_columns_in_df(merged_parcel_data, vacant_table_fields.keys())
-    
-    print(merged_parcel_data)
+
+    self.logger.debug(merged_parcel_data)
 
     merged_parcel_data.to_csv('transform_vacant_table.csv', index=False)
 
