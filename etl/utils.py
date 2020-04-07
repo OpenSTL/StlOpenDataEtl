@@ -49,7 +49,7 @@ def decompress(archive_binary_data, supported_file_extensions=None):
             name, BytesIO(archive.read(name))))
     return decompressed_files
 
-# remove a file,surpress error if file removal fails
+# remove a file, suppress error if file removal fails
 def silentremove(filename):
     try:
         os.remove(filename)
