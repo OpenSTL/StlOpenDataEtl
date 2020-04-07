@@ -23,6 +23,7 @@ class Extractor:
     # Initializer / Instance Attributes
     def __init__(self, pbar_manager):
         self.pbar_manager = pbar_manager
+        self.job_count = 0
         self.logger = logging.getLogger(__name__)
 
     def extract_all(self, responses):
@@ -30,14 +31,16 @@ class Extractor:
         Returns a list of extracted data objects from responses
         '''
         # Setup Extract stage progress bar
-        self.job_count = len(responses)
-        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__)
+        self.job_count = sum(map(lambda response: response.payload_count(), responses))
+        # self.logger.debug("self.job_count: %s",self.job_count)
+        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
 
         # Prepare nested dictionary to store extracted table lists
         entity_dict = dict()
         entities = dict()
         for response in responses:
             for payload in response.payload:
+                # Extract payload
                 if utils.get_file_ext(payload.filename) == CSV:
                     entities = self.get_csv_data(payload)
                 elif utils.get_file_ext(payload.filename) == MDB:
@@ -80,7 +83,7 @@ class Extractor:
         Arguments:
         payload -- payload object (str,binary)
         '''
-        self.logger.debug('Extracting file: %s', payload.filename)
+        self.logger.debug('Extracting file: %s...', payload.filename)
         # Convert ByteIO to string
         content = str(payload.data.getvalue(),'utf-8')
         # Feed string as StringIO into pandas read_csv function()
@@ -112,18 +115,21 @@ class Extractor:
 
         # Get list of table from database
         table_list = pandas_access.list_tables(payload.filename)
-        # Setup MDB job progress bar
-        child_pbar = self.pbar_manager.counter(total=len(table_list), desc=' get_mdb_data')
+
+        # Update progress bar job count
+        self.job_count += len(table_list)
+        self.pbar.total = self.job_count
+
         # Iterate through each table in database
         for tbl in table_list:
-                self.logger.debug('Extracting table: %s from file: %s', tbl, payload.filename)
+                self.logger.debug('Extracting table: \'%s\' from file: %s...', tbl, payload.filename)
                 # Issue: Default pandas integer type is not nullable - null values in integer column causes read error
                 # Workaround: Read integer as Int64 (pandas nullable integer type in pandas)
                 dtype_input = {attribute:'Int64' for attribute in integer_attributes[tbl]}
                 df = pandas_access.read_table(payload.filename, tbl, dtype = dtype_input)
                 entity_dict.update({tbl:df})
                 # update progress bar
-                child_pbar.update()
+                self.pbar.update()
         return entity_dict
 
     # Extract .dbf data
@@ -134,7 +140,7 @@ class Extractor:
         Arguments:
         payload -- payload object (str,binary)
         '''
-        self.logger.debug('Extracting file: %s', payload.filename)
+        self.logger.debug('Extracting file: %s...', payload.filename)
         # TODO: find a way to directly pass byteio into DBFobj without writing to disk
         # Write bytes to disk
         open(payload.filename, 'wb').write(payload.data.getvalue())
@@ -156,7 +162,7 @@ class Extractor:
         archive -- fetcher response from the archive containing the shape file and supporting files (FetcherResponse)
         shapefile -- the shape file from the archive; looks like the "payload" argument in other extractors
         '''
-        self.logger.debug('Extracting \'file\': %s', shapefile.filename)
+        self.logger.debug('Extracting file: %s...', shapefile.filename)
         SCRATCH_DIR = 'scratch'
         try:
             # .shp requires multiple supporting files; save all files from archive to disk

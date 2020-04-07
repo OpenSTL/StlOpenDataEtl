@@ -17,13 +17,13 @@ class FetcherLocal:
 
     def fetch_all(self, filenames):
         # Setup Fetch stage progress bar
-        job_count = len(filenames)
-        self.pbar = self.pbar_manager.counter(total=job_count, desc=__name__)
+        self.job_count = len(filenames)
+        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
 
         fetchedFiles = []
 
         for filename in filenames:
-            self.logger.debug("Fetching local file: %s", filename)
+            self.logger.debug("Fetching local file: %s...", filename)
             file = self.fetch(filename)
             fetchedFiles.append(file)
             # update progress bar

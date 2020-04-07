@@ -27,12 +27,12 @@ class Fetcher:
         Returns a list of fetcher data objects as defined below.
         '''
         # Setup Fetch stage progress bar
-        job_count = len(src_yaml.keys())
-        self.pbar = self.pbar_manager.counter(total=job_count, desc=__name__)
+        self.job_count = len(src_yaml.keys())
+        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
 
         data = []
         for key in src_yaml.keys():
-            self.logger.debug("Fetching data: %s", key)
+            self.logger.debug("Fetching data: %s (%s)...", key, src_yaml[key]['url'].rsplit('/', 1)[-1])
             data.append(self.fetch(key, src_yaml[key]['url']))
             # update progress bar
             self.pbar.update()

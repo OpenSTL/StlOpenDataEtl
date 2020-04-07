@@ -12,11 +12,11 @@ class Parser:
 
     def parse_all(self, responses):
         # Setup Extract stage progress bar
-        job_count = len(responses)
-        self.pbar = self.pbar_manager.counter(total=job_count, desc=__name__)
+        self.job_count = len(responses)
+        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
         for response in responses:
             try:
-                self.logger.debug('Parsing file: %s', response.name)
+                self.logger.debug('Parsing file: %s...', response.name)
                 response.payload = self.flatten(response, SUPPORTED_FILE_EXT)
             except Exception as err:
                 self.logger.error(err)

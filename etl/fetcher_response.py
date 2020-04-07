@@ -37,3 +37,18 @@ class FetcherResponse:
             'source': self.source,
             'error': self.error
         }
+
+    def payload_count(self):
+        '''
+        returns number of items in self.payload
+        '''
+        # check if payload is defined
+        if self.payload is None:
+            return 0
+
+        # check if payload is a list or a dict
+        if isinstance(self.payload, list) or isinstance(self.payload, dict):
+            return len(self.payload)
+
+        # if neither, assume object is payload object
+        return 1
