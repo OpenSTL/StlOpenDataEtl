@@ -26,7 +26,7 @@ class Transformer:
         transformed['task_name'] = <output from transformer task>
 
         '''
-        # Setup Extract stage progress bar
+        # Setup progress bar
         self.job_count = len(transform_task_list)
         self.logger.debug("transform job_count: %s", self.job_count)
         self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__)

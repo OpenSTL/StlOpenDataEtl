@@ -30,7 +30,7 @@ class Extractor:
         '''
         Returns a list of extracted data objects from responses
         '''
-        # Setup Extract stage progress bar
+        # Setup progress bar
         self.job_count = sum(map(lambda response: response.payload_count(), responses))
         # self.logger.debug("self.job_count: %s",self.job_count)
         self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')

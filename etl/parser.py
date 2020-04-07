@@ -11,7 +11,7 @@ class Parser:
         self.logger = logging.getLogger(__name__)
 
     def parse_all(self, responses):
-        # Setup Extract stage progress bar
+        # Setup progress bar
         self.job_count = len(responses)
         self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
         for response in responses:

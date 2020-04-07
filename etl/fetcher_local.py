@@ -16,7 +16,7 @@ class FetcherLocal:
         self.logger = logging.getLogger(__name__)
 
     def fetch_all(self, filenames):
-        # Setup Fetch stage progress bar
+        # Setup progress bar
         self.job_count = len(filenames)
         self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
 

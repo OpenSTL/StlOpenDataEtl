@@ -26,7 +26,7 @@ class Fetcher:
         '''
         Returns a list of fetcher data objects as defined below.
         '''
-        # Setup Fetch stage progress bar
+        # Setup progress bar
         self.job_count = len(src_yaml.keys())
         self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
 
