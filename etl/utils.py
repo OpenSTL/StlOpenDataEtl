@@ -1,4 +1,5 @@
 import os
+import errno
 import yaml
 import zipfile
 from etl.payload_data import PayloadData
