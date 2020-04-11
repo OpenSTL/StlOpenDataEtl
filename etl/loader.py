@@ -67,7 +67,7 @@ class Loader:
         '''
         # If table doesn't exist, Create.
         if not self._engine.dialect.has_table(self._engine, tablename):
-            self.logger.debug("Inserting table %s into database %s", tablename, self.credentials['db_name'], "...")
+            self.logger.debug("Inserting table %s into database %s...", tablename, self.credentials['db_name'])
             table_df.iloc[:0].to_sql(tablename, self._engine, if_exists='fail')
         # insert new table, drop old table if exists
         table_df.to_sql(name=tablename, con = self._engine, if_exists = 'replace', chunksize = chunk_size)
