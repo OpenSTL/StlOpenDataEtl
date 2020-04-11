@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # Ignore database credential secret file
-data/database/config.yml
+data/database/config_prod.yml
 
 # Mac metadata
 *.DS_Store
@@ -145,3 +145,6 @@ scratch
 
 # vacant_table transformer debug output
 transform_vacant_table.csv
+
+# sqlite test db
+vacancy.sqlite

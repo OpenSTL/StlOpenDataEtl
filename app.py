@@ -3,6 +3,7 @@ StlOpenDataEtl
 '''
 
 import os
+import logging
 from etl import command_line_args, extractor, fetcher, fetcher_local, loader, parser, transformer, utils
 
 CSV = '.csv'  # comma separated values
@@ -19,6 +20,17 @@ SUPPORTED_FILE_EXT = [CSV, DBF, MDB, PRJ, SBN, SBX, SHP, SHX]
 
 if __name__ == '__main__':
     commandLineArgs = command_line_args.getCommandLineArgs()
+
+    # Load database config
+    # notify user if the app will be using test or prod db
+    if (commandLineArgs.db == 'prod'):
+        print('Using production database...')
+        db_yaml = utils.get_yaml('data/database/config_prod.yml')
+    else:
+        print('Using development database...')
+        db_yaml = utils.get_yaml('data/database/config_dev.yml')
+        # delete local db from previous run
+        utils.silentremove(db_yaml['database_credentials']['db_name'])
 
     # Fetcher
     if (commandLineArgs.local_sources):
@@ -62,10 +74,12 @@ if __name__ == '__main__':
     # Transformer
     transform_tasks = utils.get_yaml('data/transform_tasks/transform_tasks.yml')
     transformer = transformer.Transformer()
-    transformed = transformer.transform_all(entity_dict, transform_tasks)
+    transformed_dict = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
-    db_yaml = utils.get_yaml('data/database/config.yml')
+    # read loader config
     loader = loader.Loader(db_yaml)
+    # connect to database
     loader.connect()
-    # TODO: insert, update tables using loader class
+    for tablename, transformed_df in transformed_dict.items():
+        loader.insert(tablename, transformed_df)

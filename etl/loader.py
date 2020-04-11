@@ -1,5 +1,7 @@
 import yaml
 import sqlalchemy
+from etl.utils import xstr
+from io import StringIO
 
 class Loader:
     '''
@@ -10,10 +12,12 @@ class Loader:
     '''
     _engine = None
     _config = None
+    _metadata = None
 
     # Initializer / Instance Attributes
     def __init__(self,config_yaml):
-        self._config = config_yaml
+        # Get credentials from YAML
+        self.credentials = self.get_credentials(config_yaml,'database_credentials')
 
     # Get credentials from yaml config
     def get_credentials(self, config_yaml, match_key):
@@ -25,47 +29,55 @@ class Loader:
         match_key -- string representing key to match in yaml dictionary
 
         '''
-        credentials = dict()
         for key in config_yaml.keys():
             if key == match_key:
                 return config_yaml[key]
 
     # Connect to remote mysql db
     def connect(self):
-        # Get credentials from YAML
-        credentials = self.get_credentials(self._config,'database_credentials')
         # create sqlalchemy engine
-        engine = sqlalchemy.create_engine("mysql+pymysql://{user}:{pw}@{host}/{db}"
-                               .format(user = credentials['db_username'],
-                                       host = credentials['db_hostname'],
-                                       pw = credentials['db_password'],
-                                       db = credentials['db_name']))
+        engine = sqlalchemy.create_engine("{dialect}://{user}{pw}{host}/{db}"
+                               .format(dialect = xstr(self.credentials['dialect_driver']),
+                                        user = xstr(self.credentials['db_username']),
+                                        host = ('@', '')[self.credentials['db_hostname'] is None] + xstr(self.credentials['db_hostname']),
+                                        pw = (':', '')[self.credentials['db_password'] is None] + xstr(self.credentials['db_password']),
+                                        db = xstr(self.credentials['db_name'])))
         # try to connect to database
         try:
             engine.connect()
             self._engine = engine
+            self._metadata = sqlalchemy.MetaData()
         except sqlalchemy.exc.OperationalError as except_detail:
             # print error details
             print("ERROR: {}".format(except_detail))
         return
 
-    def insert(self, dataframe, table_name, chunksize):
+    def insert(self, tablename, table_df, chunk_size = 1000):
         '''
-        Arguments:
-        dataframe -- pandas dataframe object
-        table_name -- table name in database
-        chunksize -- writes records in batches of a given size at a time. By default, all rows will be written at once.
+        Inserts pandas dataframe (table_df) into SQL database.
+        If table already exists, this call will drop the old table before inserting new values.
 
-        '''
-        # Insert DataFrame recrds one by one.
-        data.to_sql(attribute, con = self._engine, if_exists = 'append', chunksize = 1000)
-        return
-
-    def update(self, dataframe, table_name):
-        '''
         Arguments:
-        dataframe -- pandas dataframe object
-        table_name -- table name in database
+        tablename - table name string
+        table_df - dataframe containing table with transformed data
+        chunk_size - number of rows in each batch to be written at a time
+        '''
+        # If table doesn't exist, Create.
+        if not self._engine.dialect.has_table(self._engine, tablename):
+            print("Inserting table ", tablename, " in ", self.credentials['db_name'], "...")
+            table_df.iloc[:0].to_sql(tablename, self._engine, if_exists='fail')
+        # insert new table, drop old table if exists
+        table_df.to_sql(name=tablename, con = self._engine, if_exists = 'replace', chunksize = chunk_size)
+
+
+    def update(self, tablename, table_df, chunk_size = 1000):
+        '''
+        Update existing table in SQL database
+
+        Arguments:
+        tablename - table name string
+        table_df - dataframe containing table with transformed data
+        chunk_size - number of rows in each batch to be written at a time
         '''
         # Update matching ids with dataframe in table_name
         pass
