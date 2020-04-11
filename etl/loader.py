@@ -3,6 +3,7 @@ import sqlalchemy
 from etl.utils import xstr
 from io import StringIO
 import logging
+from etl.progress_bar_manager import ProgressBarManager
 
 class Loader:
     '''
@@ -16,10 +17,10 @@ class Loader:
     _metadata = None
 
     # Initializer / Instance Attributes
-    def __init__(self, config_yaml, pbar_manager):
+    def __init__(self, config_yaml):
         # Get credentials from YAML
         self.credentials = self.get_credentials(config_yaml,'database_credentials')
-        self.pbar_manager = pbar_manager
+        self.pbar_manager = ProgressBarManager()
         self.logger = logging.getLogger(__name__)
 
     # Get credentials from yaml config

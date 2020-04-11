@@ -1,9 +1,10 @@
 from .transformer_tasks.vacant_table.vacant_table import vacant_table
 import logging
+from etl.progress_bar_manager import ProgressBarManager
 
 class Transformer:
-    def __init__(self, pbar_manager):
-        self.pbar_manager = pbar_manager
+    def __init__(self):
+        self.pbar_manager = ProgressBarManager()
         self.logger = logging.getLogger(__name__)
         self.transform_tasks_to_transform_fns = {
             'vacant_table': vacant_table
@@ -29,7 +30,7 @@ class Transformer:
         # Setup progress bar
         self.job_count = len(transform_task_list)
         self.logger.debug("transform job_count: %s", self.job_count)
-        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__)
+        self.pbar = self.pbar_manager.add_pbar(self.job_count, __name__, 'files')
 
         transformed = {}
 

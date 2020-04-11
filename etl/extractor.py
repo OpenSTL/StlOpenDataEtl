@@ -13,6 +13,7 @@ from io import StringIO
 import logging
 from etl import utils
 from etl.constants import *
+from etl.progress_bar_manager import ProgressBarManager
 
 
 class Extractor:
@@ -22,8 +23,8 @@ class Extractor:
     '''
 
     # Initializer / Instance Attributes
-    def __init__(self, pbar_manager):
-        self.pbar_manager = pbar_manager
+    def __init__(self):
+        self.pbar_manager = ProgressBarManager()
         self.job_count = 0
         self.logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ class Extractor:
         # Setup progress bar
         self.job_count = sum(map(lambda response: response.payload_count(), responses))
         # self.logger.debug("self.job_count: %s",self.job_count)
-        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
+        self.pbar = self.pbar_manager.add_pbar(self.job_count, __name__, 'files')
 
         # Prepare nested dictionary to store extracted table lists
         entity_dict = dict()

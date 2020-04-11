@@ -13,13 +13,14 @@ from urllib.request import urlopen
 from urllib.parse import urlparse
 from urllib.error import URLError
 import logging
+from etl.progress_bar_manager import ProgressBarManager
 
 
 class Fetcher:
 
     # Initializer / Instance Attributes
-    def __init__(self, pbar_manager):
-        self.pbar_manager = pbar_manager
+    def __init__(self):
+        self.pbar_manager = ProgressBarManager()
         self.logger = logging.getLogger(__name__)
 
     def fetch_all(self, src_yaml):
@@ -28,7 +29,7 @@ class Fetcher:
         '''
         # Setup progress bar
         self.job_count = len(src_yaml.keys())
-        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
+        self.pbar = self.pbar_manager.add_pbar(self.job_count, __name__, 'files')
 
         data = []
         for key in src_yaml.keys():

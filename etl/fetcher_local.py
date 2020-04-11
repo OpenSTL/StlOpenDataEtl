@@ -4,6 +4,7 @@ from io import BytesIO
 import os
 from posixpath import basename
 import logging
+from etl.progress_bar_manager import ProgressBarManager
 
 # local testing replacement for Fetcher
 # load a subset of data from local files instead
@@ -11,14 +12,14 @@ import logging
 class FetcherLocal:
 
     # Initializer / Instance Attributes
-    def __init__(self, pbar_manager):
-        self.pbar_manager = pbar_manager
+    def __init__(self):
+        self.pbar_manager = ProgressBarManager()
         self.logger = logging.getLogger(__name__)
 
     def fetch_all(self, filenames):
         # Setup progress bar
         self.job_count = len(filenames)
-        self.pbar = self.pbar_manager.counter(total=self.job_count, desc=__name__, unit='files')
+        self.pbar = self.pbar_manager.add_pbar(self.job_count, __name__, 'files')
 
         fetchedFiles = []
 
