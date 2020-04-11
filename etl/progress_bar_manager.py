@@ -2,64 +2,46 @@ import logging
 import enlighten
 
 
-
-# class ProgressBarManager:
-#    __instance = None
-#    @staticmethod
-#    def getInstance():
-#       """ Static access method. """
-#       if ProgressBarManager.__instance == None:
-#          logging.debug('Delay creation of ProgressBarManager object...')
-#          ProgressBarManager()
-#       return ProgressBarManager.__instance
-#
-#    def __init__(self):
-#       """ Virtually private constructor. """
-#       if ProgressBarManager.__instance != None:
-#          raise Exception("This class is a singleton!")
-#       else:
-#          logging.debug('Creating ProgressBarManager object...')
-#          ProgressBarManager.__instance = enlighten.get_manager()
-
 class ProgressBarManager(object):
     _instance = None
 
     class __ProgressBarManager:
         """ private class """
+        _pbar_dict = dict()
+
         def __init__(self):
             """ private constructor """
             self._manager = enlighten.get_manager()
 
+        def __str__(self):
+            return f'a {self._manager} , {self._pbar_dict}'
+
+        def __repr__(self):
+            return f'{self.__class__.__name__}('f'{self._manager!r}, {self._pbar_dict!r})'
+
         def add_pbar(self, job_count, name, unit):
+            """ add progress bar to manager """
             pbar = self._manager.counter(total=job_count, desc=name, unit=unit)
+            self._pbar_dict[name] = pbar
             return pbar
 
-        # def __str__(self):
-        #     logging.debug('Calling private __str__')
-        #     return self._manager
+        def get_pbar(self, name):
+            """ get progress bar to manager using name"""
+            if name not in self._pbar_dict:
+                logging.debug('ProgressBarManager cannot find progress bar with the name %s', name)
+                return None
+            return self._pbar_dict[name]
 
     def __new__(cls):
         """
-        Arguments:
-        Creates and returns ProgressBar object if it doesn't exist;
-        Returns ProgressBar object if it exists from previous initialization.
-        note: __new__ called at instances creation before __init__
+        Creates and returns ProgressBar object not initialized;
+        Returns ProgressBar object if initialized previously.
         """
         if not ProgressBarManager._instance:
             ProgressBarManager._instance = ProgressBarManager.__ProgressBarManager()
-            logging.debug('Creating ProgressBarManager object...')
+            logging.debug('Creating new ProgressBarManager instance (%s)',
+                          hex(id(ProgressBarManager._instance)))
         else:
-            logging.debug('Using existing ProgressBarManager object...')
+            logging.debug('Using existing ProgressBarManager instance (%s)',
+                          hex(id(ProgressBarManager._instance)))
         return ProgressBarManager._instance
-
-
-    # def update(self):
-    #     self.pbar.update()
-
-    def __getattr__(self, name):
-        logging.debug('Calling __getattr__')
-        return getattr(self._instance, name)
-
-    # def __setattr__(self, name):
-    #     logging.debug('Calling __setattr__')
-    #     return setattr(self.instance, name)

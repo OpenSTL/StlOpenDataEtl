@@ -8,7 +8,6 @@ import logging.config
 from etl.constants import *
 from etl import command_line_args, extractor, fetcher, fetcher_local, loader, \
 parser, transformer, utils
-from etl.progress_bar_manager import ProgressBarManager
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -18,8 +17,6 @@ if __name__ == '__main__':
     # Setup logging
     logging.config.fileConfig('data/logger/config.ini')
     logger = logging.getLogger(__name__)
-    # Setup progress bar manager to keep track of multiple progress bars
-    pbar_manager = ProgressBarManager()
 
     # notify user if the app will be using test or prod db
     if (commandLineArgs.db == 'prod'):
