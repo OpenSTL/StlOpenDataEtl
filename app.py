@@ -18,7 +18,16 @@ if __name__ == '__main__':
     logging.config.fileConfig('data/logger/config.ini')
     logger = logging.getLogger(__name__)
     # Setup progress bar manager
-    pbar_manager = enlighten.get_manager()
+	pbar_manager = enlighten.get_manager()
+    # notify user if the app will be using test or prod db
+    if (commandLineArgs.db == 'prod'):
+        logger.info('Using production database...')
+        db_yaml = utils.get_yaml('data/database/config_prod.yml')
+    else:
+        logger.info('Using development database...')
+        db_yaml = utils.get_yaml('data/database/config_dev.yml')
+        # delete local db from previous run
+        utils.silentremove(db_yaml['database_credentials']['db_name'])
 
     # Fetcher
     if (commandLineArgs.local_sources):
@@ -42,10 +51,12 @@ if __name__ == '__main__':
     # Transformer
     transform_tasks = utils.get_yaml('data/transform_tasks/transform_tasks.yml')
     transformer = transformer.Transformer(pbar_manager)
-    transformed = transformer.transform_all(entity_dict, transform_tasks)
+    transformed_dict = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
-    db_yaml = utils.get_yaml('data/database/config.yml')
+    # read loader config
     loader = loader.Loader(db_yaml, pbar_manager)
+    # connect to database
     loader.connect()
-    # TODO: insert, update tables using loader class
+    for tablename, transformed_df in transformed_dict.items():
+        loader.insert(tablename, transformed_df)

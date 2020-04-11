@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import pandas_access
 import shutil
+from etl import utils
 from dbfread import DBF as DBFobj
 from io import StringIO
 # from etl.entity import Entity
@@ -102,26 +103,27 @@ class Extractor:
         payload -- payload object (str,binary)
         '''
         # TODO: find a way to directly pass byteio to reading utility without writing to disk
-        # Write to bytes to disk
-        open(payload.filename, 'wb').write(payload.data.getvalue())
+        try:
+            # Write to bytes to disk
+            open(payload.filename, 'wb').write(payload.data.getvalue())
 
-        # Get database schema
-        mdb_schema = pandas_access.read_schema(payload.filename)
-        # Get attributes that are of integer type
-        integer_attributes = self.get_attributes_by_data_type(mdb_schema,'Long Integer')
+            # Get database schema
+            mdb_schema = pandas_access.read_schema(payload.filename)
+            # Get attributes that are of integer type
+            integer_attributes = self.get_attributes_by_data_type(mdb_schema,'Long Integer')
 
-        # Declare entity dict
-        entity_dict = dict()
+            # Declare entity dict
+            entity_dict = dict()
 
-        # Get list of table from database
-        table_list = pandas_access.list_tables(payload.filename)
+        	# Get list of table from database
+        	table_list = pandas_access.list_tables(payload.filename)
 
-        # Update progress bar job count
-        self.job_count += len(table_list)
-        self.pbar.total = self.job_count
+        	# Update progress bar job count
+        	self.job_count += len(table_list)
+        	self.pbar.total = self.job_count
 
-        # Iterate through each table in database
-        for tbl in table_list:
+            # Iterate through each table in database
+        	for tbl in table_list:
                 self.logger.debug('Extracting table: \'%s\' from file: %s...', tbl, payload.filename)
                 # Issue: Default pandas integer type is not nullable - null values in integer column causes read error
                 # Workaround: Read integer as Int64 (pandas nullable integer type in pandas)
@@ -130,7 +132,9 @@ class Extractor:
                 entity_dict.update({tbl:df})
                 # update progress bar
                 self.pbar.update()
-        return entity_dict
+            return entity_dict
+        finally:
+            utils.silentremove(payload.filename)
 
     # Extract .dbf data
     def get_dbf_data(self, payload):
@@ -142,16 +146,19 @@ class Extractor:
         '''
         self.logger.debug('Extracting file: %s...', payload.filename)
         # TODO: find a way to directly pass byteio into DBFobj without writing to disk
-        # Write bytes to disk
-        open(payload.filename, 'wb').write(payload.data.getvalue())
-        # Create DBF object
-        table = DBFobj(payload.filename)
-        # Convert DBF object to dataframe
-        dataframe = pd.DataFrame(iter(table))
-        # Use HANDLE as dataframe index
-        # dataframe.set_index('HANDLE', inplace = True)
-        # Return Entity object
-        return {payload.filename: dataframe}
+        try:
+            # Write bytes to disk
+            open(payload.filename, 'wb').write(payload.data.getvalue())
+            # Create DBF object
+            table = DBFobj(payload.filename)
+            # Convert DBF object to dataframe
+            dataframe = pd.DataFrame(iter(table))
+            # Use HANDLE as dataframe index
+            # dataframe.set_index('HANDLE', inplace = True)
+            # Return Entity object
+            return {payload.filename: dataframe}
+        finally:
+            utils.silentremove(payload.filename)
 
     # Extract .shp data
     def get_shp_data(self, archive, shapefile):

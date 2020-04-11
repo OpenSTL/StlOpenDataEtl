@@ -1,0 +1,6 @@
+database_credentials:
+  dialect_driver: sqlite
+  db_hostname:
+  db_name: vacancy.sqlite
+  db_password:
+  db_username:
