@@ -18,7 +18,8 @@ if __name__ == '__main__':
     logging.config.fileConfig('data/logger/config.ini')
     logger = logging.getLogger(__name__)
     # Setup progress bar manager
-	pbar_manager = enlighten.get_manager()
+    pbar_manager = enlighten.get_manager()
+    
     # notify user if the app will be using test or prod db
     if (commandLineArgs.db == 'prod'):
         logger.info('Using production database...')

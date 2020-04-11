@@ -115,15 +115,15 @@ class Extractor:
             # Declare entity dict
             entity_dict = dict()
 
-        	# Get list of table from database
-        	table_list = pandas_access.list_tables(payload.filename)
+            # Get list of table from database
+            table_list = pandas_access.list_tables(payload.filename)
 
-        	# Update progress bar job count
-        	self.job_count += len(table_list)
-        	self.pbar.total = self.job_count
+            # Update progress bar job count
+            self.job_count += len(table_list)
+            self.pbar.total = self.job_count
 
             # Iterate through each table in database
-        	for tbl in table_list:
+            for tbl in table_list:
                 self.logger.debug('Extracting table: \'%s\' from file: %s...', tbl, payload.filename)
                 # Issue: Default pandas integer type is not nullable - null values in integer column causes read error
                 # Workaround: Read integer as Int64 (pandas nullable integer type in pandas)
@@ -134,6 +134,7 @@ class Extractor:
                 self.pbar.update()
             return entity_dict
         finally:
+            self.logger.debug('Removing intermediate file: %s...', payload.filename)
             utils.silentremove(payload.filename)
 
     # Extract .dbf data
@@ -158,6 +159,7 @@ class Extractor:
             # Return Entity object
             return {payload.filename: dataframe}
         finally:
+            self.logger.debug('Removing intermediate file: %s...', payload.filename)
             utils.silentremove(payload.filename)
 
     # Extract .shp data
@@ -183,4 +185,5 @@ class Extractor:
             return {shapefile.filename: dataframe}
 
         finally:
+            self.logger.debug('Removing intermediate directory: %s...', SCRATCH_DIR)
             shutil.rmtree(SCRATCH_DIR)
