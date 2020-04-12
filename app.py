@@ -53,9 +53,5 @@ if __name__ == '__main__':
     transformed_dict = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
-    # read loader config
     loader = loader.Loader(db_yaml)
-    # connect to database
-    loader.connect()
-    for tablename, transformed_df in transformed_dict.items():
-        loader.insert(tablename, transformed_df)
+    loader.load_all(transformed_dict)

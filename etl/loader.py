@@ -18,10 +18,23 @@ class Loader:
 
     # Initializer / Instance Attributes
     def __init__(self, config_yaml):
-        # Get credentials from YAML
-        self.credentials = self.get_credentials(config_yaml,'database_credentials')
         self.pbar_manager = ProgressBarManager()
         self.logger = logging.getLogger(__name__)
+        # Get credentials from YAML
+        self.credentials = self.get_credentials(config_yaml,'database_credentials')
+        # connect to database
+        self.connect()
+
+    def load_all(self, transformed_dict):
+        # Setup progress bar
+        self.job_count = len(transformed_dict)
+        self.pbar = self.pbar_manager.add_pbar(self.job_count, __name__, 'tables')
+
+        # Load tables
+        for tablename, transformed_df in transformed_dict.items():
+            self.insert(tablename, transformed_df)
+            # update progress bar
+            self.pbar.update()
 
     # Get credentials from yaml config
     def get_credentials(self, config_yaml, match_key):
