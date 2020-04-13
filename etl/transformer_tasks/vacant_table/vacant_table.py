@@ -33,6 +33,7 @@ def vacant_table(df):
 
     logging.debug(merged_parcel_data)
 
-    utils.to_csv(merged_parcel_data, 'transform_vacant_table.csv')
+    merged_parcel_data.to_csv('transform_vacant_table.csv', index=False)
+    # utils.to_csv(merged_parcel_data, 'transform_vacant_table.csv')
 
     return merged_parcel_data
