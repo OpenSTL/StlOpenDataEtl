@@ -4,7 +4,6 @@ import os
 import ssl
 import sys
 import yaml
-from app import ROOT_DIR
 from etl.fetcher_response import FetcherResponse
 from etl.payload_data import PayloadData
 from etl.utils import get_file_name_from_uri
