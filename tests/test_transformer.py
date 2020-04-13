@@ -80,7 +80,7 @@ if __name__ == '__main__':
     filenames = commandLineArgs.local_sources
 
     # Specify transform task yaml to use
-    transform_yaml_path = 'data/transform_tasks/transform_tasks.yml'
+    transform_yaml_path = 'data/transform_tasks/test_transform_tasks.yml'
 
     # Create mock post-extraction dataframe dictionary
     logger.info("Importing files into dataframes...")
