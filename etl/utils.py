@@ -2,6 +2,7 @@ import os
 import errno
 import yaml
 import zipfile
+import pandas as pd
 from etl.payload_data import PayloadData
 from io import BytesIO
 from posixpath import basename
@@ -64,3 +65,23 @@ def xstr(s):
     if s is None:
         return ''
     return str(s)
+
+# Export to csv perserving datatype
+def to_csv(df, filename):
+    # Prepend dtypes to the top of df
+    df.loc[-1] = df.dtypes
+    df.index = df.index + 1
+    df.sort_index(inplace=True)
+    # Then save it to a csv
+    df.to_csv(filename, index=False)
+
+# Import from csv preserving datatype
+def read_csv(filename):
+    # Read types first line of csv
+    dtypes = pd.read_csv(filename, nrows=1).iloc[0].to_dict()
+    # Replace unrecognized dtype with 'object'
+    for attribute,dtype in dtypes.items():
+        if str(dtype) == 'geometry':
+            dtypes[attribute] = 'object'
+    # Read the rest of the lines with the types from above
+    return pd.read_csv(filename, dtype=dtypes, skiprows=[1])
