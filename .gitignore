@@ -151,4 +151,4 @@ vacancy.sqlite
 
 # config files for unit tests
 data/source/test_sources.yml
-data/transform_tasks/transform_tasks.yml
+data/transform_tasks/test_transform_tasks.yml
