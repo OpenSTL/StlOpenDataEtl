@@ -59,7 +59,44 @@ python3 ./app.py --db prod
 ```
 :warning: Example 3. will not work if you don't have the database admin credentials. For more details, [Go to Running with Production Database](#running-with-production-database).  
 
+#### Running individual stages
+To run individual stages (i.e. Fetcher only, Transformer only) without running the entire application, use the following commands:
+1. Run `Fetcher` only:
+Run with default `test_sources.yml`:
+```bash
+python3 tests/test_fetcher.py
+```
+To run with specific source YAML, run the following command replacing last argument with path to custom YAML:
+```bash
+python3 tests/test_fetcher.py ./data/sources/sources.yml
+```
 
+2. Run `Parser` only:
+Use --local-sources to specify local files to parse:
+```bash
+python3 tests/test_parser.py --local-sources ./src/prcl.mdb ./src/par.dbf ./src/prcl_shape.zip
+```
+
+3. Run `Extractor` only:
+```bash
+python3 tests/test_extractor.py --local-sources ./src/prcl.mdb ./src/par.dbf ./src/prcl_shape.zip
+```
+
+4. Run `Transformer` only:
+```bash
+python3 tests/test_transformer.py --local-sources src/BldgCom.csv src/BldgRes.csv src/par.dbf.csv src/prcl.shp.csv src/Prcl.csv
+```
+
+5. Run `Loader` only:
+```bash
+python3 tests/test_loader.py --local-sources ./src/vacant_table.csv
+```
+
+#### Running unit tests
+To run unit tests, run the following command from project root directory:
+```bash
+pytest
+```
 
 #### Deactivating Virtual Environment
 

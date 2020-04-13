@@ -1,6 +1,7 @@
 from .map_parcel_data_to_vacant_table import map_parcel_data_to_vacant_table, vacant_table_fields
 from .merge_parcel_data import merge_parcel_data
 import logging
+from etl import utils
 
 def keep_only_select_columns_in_df(df, columnsToKeep):
     df.drop(df.columns.difference(columnsToKeep), axis=1, inplace=True)
@@ -32,6 +33,6 @@ def vacant_table(df):
 
     logging.debug(merged_parcel_data)
 
-    merged_parcel_data.to_csv('transform_vacant_table.csv', index=False)
+    utils.to_csv(merged_parcel_data, 'transform_vacant_table.csv')
 
     return merged_parcel_data
