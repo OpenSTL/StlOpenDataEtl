@@ -1,6 +1,5 @@
 
 # Declare global variables (callable across files)
-TOTAL_STAGES = 5
 CSV = '.csv'  # comma separated values
 DBF = '.dbf'  # dbase
 MDB = '.mdb'  # microsoft access database (jet, access, etc.)
