@@ -12,18 +12,33 @@ from io import BytesIO
 from urllib.request import urlopen
 from urllib.parse import urlparse
 from urllib.error import URLError
+import logging
+from etl.progress_bar_manager import ProgressBarManager
 
 
 class Fetcher:
+
+    # Initializer / Instance Attributes
+    def __init__(self):
+        self.pbar_manager = ProgressBarManager()
+        self.logger = logging.getLogger(__name__)
 
     def fetch_all(self, src_yaml):
         '''
         Returns a list of fetcher data objects as defined below.
         '''
+        # Setup progress bar
+        self.job_count = len(src_yaml.keys())
+        self.pbar = self.pbar_manager.add_pbar(self.job_count, __name__, 'files')
+
         data = []
         for key in src_yaml.keys():
+            self.logger.debug("Fetching data: %s (%s)...", key, src_yaml[key]['url'].rsplit('/', 1)[-1])
             data.append(self.fetch(key, src_yaml[key]['url']))
-
+            # update progress bar
+            self.pbar.update()
+        # Close progress bar
+        self.pbar.close()
         return data
 
     def fetch(self, name, url):

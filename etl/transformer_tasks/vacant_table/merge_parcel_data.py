@@ -1,4 +1,5 @@
 from .parcel_id import parcel_id
+import logging
 
 def merge_parcel_data(df):
     '''
@@ -11,19 +12,19 @@ def merge_parcel_data(df):
     '''
 
     # add ParcelId as a merge index
-    print('add ParcelId to bldgcom, bldgres')
+    logging.debug('add ParcelId to bldgcom, bldgres')
     add_parcel_id_column_to_df(df['BldgCom'])
     add_parcel_id_column_to_df(df['BldgRes'])
 
-    print('merge tables with prcl')
-    print('-BldgCom')
+    logging.debug('merge tables with prcl')
+    logging.debug('-BldgCom')
     prclWithBldgCom = df['Prcl'].merge(
         right=df['BldgCom'],
         how='left',
         on='ParcelId'
     )
 
-    print('-BldgRes')
+    logging.debug('-BldgRes')
     fullyMergedPrcl = prclWithBldgCom.merge(
         right=df['BldgRes'],
         how='left',
@@ -33,7 +34,7 @@ def merge_parcel_data(df):
     # convert pk to int so we can merge with other data sources
     fullyMergedPrcl['Handle'] = fullyMergedPrcl['Handle'].astype(int)
 
-    print('-par.dbf')
+    logging.debug('-par.dbf')
     parDbf = df['par.dbf'].copy(deep=True)
     # cast par.dbf pk to match prcl pk type
     parDbf['HANDLE'] = parDbf['HANDLE'].astype(int)
@@ -44,7 +45,7 @@ def merge_parcel_data(df):
         right_on='HANDLE'
     )
 
-    print('-prcl.shp')
+    logging.debug('-prcl.shp')
     prclShp = df['prcl.shp'].copy(deep=True)
     # again we need to change the pk type to match prcl
     prclShp['HANDLE'] = prclShp['HANDLE'].astype(int)

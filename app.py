@@ -3,38 +3,34 @@ StlOpenDataEtl
 '''
 
 import os
-import logging
-from etl import command_line_args, extractor, fetcher, fetcher_local, loader, parser, transformer, utils
-
-CSV = '.csv'  # comma separated values
-DBF = '.dbf'  # dbase
-MDB = '.mdb'  # microsoft access database (jet, access, etc.)
-PRJ = '.prj'  # .shp support file
-SBN = '.sbn'  # .shp support file
-SBX = '.sbx'  # .shp support file
-SHP = '.shp'  # shapes
-SHX = '.shx'  # .shp support file
+import sys
+import logging.config
+from etl.constants import *
+from etl import command_line_args, extractor, fetcher, fetcher_local, loader, \
+parser, transformer, utils
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-SUPPORTED_FILE_EXT = [CSV, DBF, MDB, PRJ, SBN, SBX, SHP, SHX]
 
 if __name__ == '__main__':
+    # Parse Command line arguments
     commandLineArgs = command_line_args.getCommandLineArgs()
+    # Setup logging
+    logging.config.fileConfig('data/logger/config.ini')
+    logger = logging.getLogger(__name__)
 
-    # Load database config
     # notify user if the app will be using test or prod db
     if (commandLineArgs.db == 'prod'):
-        print('Using production database...')
+        logger.info('Using production database...')
         db_yaml = utils.get_yaml('data/database/config_prod.yml')
     else:
-        print('Using development database...')
+        logger.info('Using development database...')
         db_yaml = utils.get_yaml('data/database/config_dev.yml')
         # delete local db from previous run
         utils.silentremove(db_yaml['database_credentials']['db_name'])
 
     # Fetcher
     if (commandLineArgs.local_sources):
-        print('using local data files', commandLineArgs.local_sources)
+        logger.info("Using local data files: {}".format(' '.join(map(str, commandLineArgs.local_sources))))
         fetcher = fetcher_local.FetcherLocal()
         filenames = commandLineArgs.local_sources
         responses = fetcher.fetch_all(filenames)
@@ -45,31 +41,11 @@ if __name__ == '__main__':
 
     # Parser
     parser = parser.Parser()
-    for response in responses:
-        try:
-            response.payload = parser.flatten(response, SUPPORTED_FILE_EXT)
-        except Exception as err:
-            print(err)
+    responses = parser.parse_all(responses)
 
     # Extractor
     extractor = extractor.Extractor()
-    # Master entity list
-    entity_dict = dict()
-    entities = []
-    for response in responses:
-        for payload in response.payload:
-            if utils.get_file_ext(payload.filename) == CSV:
-                entities = extractor.get_csv_data(payload)
-            elif utils.get_file_ext(payload.filename) == MDB:
-                entities = extractor.get_mdb_data(payload)
-            elif utils.get_file_ext(payload.filename) == DBF:
-                entities = extractor.get_dbf_data(payload)
-            elif utils.get_file_ext(payload.filename) == SHP:
-                entities = extractor.get_shp_data(response, payload)
-            else:
-                entities = {}
-            # Add to master entity list
-            entity_dict.update(entities)
+    entity_dict = extractor.extract_all(responses)
 
     # Transformer
     transform_tasks = utils.get_yaml('data/transform_tasks/transform_tasks.yml')
@@ -77,9 +53,5 @@ if __name__ == '__main__':
     transformed_dict = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
-    # read loader config
     loader = loader.Loader(db_yaml)
-    # connect to database
-    loader.connect()
-    for tablename, transformed_df in transformed_dict.items():
-        loader.insert(tablename, transformed_df)
+    loader.load_all(transformed_dict)

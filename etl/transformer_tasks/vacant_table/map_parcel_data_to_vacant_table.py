@@ -1,4 +1,5 @@
 from . import fields
+import logging
 
 '''
 vacant_table_fields is a dictionary representing every field in the "vacant" table
@@ -51,12 +52,12 @@ def map_parcel_data_to_vacant_table(merged_parcel_data):
     merged_parcel_data -- output of merging Prcl with other parcel related dataframes
     '''
 
-    print('map data to columns')
+    logging.debug('map data to columns')
     for column, source in vacant_table_fields.items():
         if column == source:
             continue
         elif source == 'TODO':
-            print('-- TODO implement field %s' % column)
+            logging.debug('-- TODO implement field %s' % column)
         elif type(source) == str:
             merged_parcel_data[column] = merged_parcel_data[source]
         else:
