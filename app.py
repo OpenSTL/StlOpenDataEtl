@@ -6,8 +6,13 @@ import os
 import sys
 import logging.config
 from etl.constants import *
-from etl import command_line_args, extractor, fetcher, fetcher_local, loader, \
-parser, transformer, utils
+from etl import command_line_args, utils
+from etl.fetcher import Fetcher
+from etl.fetcher_local import FetcherLocal
+from etl.extractor import Extractor
+from etl.parser import Parser
+from etl.transformer import Transformer
+from etl.loader import Loader
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -31,27 +36,27 @@ if __name__ == '__main__':
     # Fetcher
     if (commandLineArgs.local_sources):
         logger.info("Using local data files: {}".format(' '.join(map(str, commandLineArgs.local_sources))))
-        fetcher = fetcher_local.FetcherLocal()
+        fetcher = FetcherLocal()
         filenames = commandLineArgs.local_sources
         responses = fetcher.fetch_all(filenames)
     else:
-        fetcher = fetcher.Fetcher()
+        fetcher = Fetcher()
         src_yaml = utils.get_yaml('data/sources/sources.yml')
         responses = fetcher.fetch_all(src_yaml)
 
     # Parser
-    parser = parser.Parser()
+    parser = Parser()
     responses = parser.parse_all(responses)
 
     # Extractor
-    extractor = extractor.Extractor()
+    extractor = Extractor()
     entity_dict = extractor.extract_all(responses)
 
     # Transformer
     transform_tasks = utils.get_yaml('data/transform_tasks/transform_tasks.yml')
-    transformer = transformer.Transformer()
+    transformer = Transformer()
     transformed_dict = transformer.transform_all(entity_dict, transform_tasks)
 
     # Loader
-    loader = loader.Loader(db_yaml)
+    loader = Loader(db_yaml)
     loader.load_all(transformed_dict)
