@@ -1,31 +1,32 @@
 from .parcel_id import parcel_id
 
-def merge_parcel_data(df):
+def merge_parcel_data(parcels, all_tables):
     '''
     Merge Parcel-related dataframes into a single dataframe using parcel id as a merge index.
     Only merges the dataframes we need to construct the "vacant" table
     Returns the merged dataframe
 
     Arguments:
-    df -- dictionary of dataframes from extractor
+    parcels -- Dataframe for prcl table
+    all_tables -- All tables from the extractor. This also includes prcl, but use parcels argument instead since parcels will be modified beyond the raw extractor output.
     '''
 
     # add ParcelId as a merge index
     print('add ParcelId to bldgcom, bldgres')
-    add_parcel_id_column_to_df(df['BldgCom'])
-    add_parcel_id_column_to_df(df['BldgRes'])
+    add_parcel_id_column_to_df(all_tables['BldgCom'])
+    add_parcel_id_column_to_df(all_tables['BldgRes'])
 
     print('merge tables with prcl')
     print('-BldgCom')
-    prclWithBldgCom = df['Prcl'].merge(
-        right=df['BldgCom'],
+    prclWithBldgCom = parcels.merge(
+        right=all_tables['BldgCom'],
         how='left',
         on='ParcelId'
     )
 
     print('-BldgRes')
     fullyMergedPrcl = prclWithBldgCom.merge(
-        right=df['BldgRes'],
+        right=all_tables['BldgRes'],
         how='left',
         on='ParcelId'
     )
@@ -34,7 +35,7 @@ def merge_parcel_data(df):
     fullyMergedPrcl['Handle'] = fullyMergedPrcl['Handle'].astype(int)
 
     print('-par.dbf')
-    parDbf = df['par.dbf'].copy(deep=True)
+    parDbf = all_tables['par.dbf'].copy(deep=True)
     # cast par.dbf pk to match prcl pk type
     parDbf['HANDLE'] = parDbf['HANDLE'].astype(int)
     fullyMergedPrcl = fullyMergedPrcl.merge(
@@ -45,7 +46,7 @@ def merge_parcel_data(df):
     )
 
     print('-prcl.shp')
-    prclShp = df['prcl.shp'].copy(deep=True)
+    prclShp = all_tables['prcl.shp'].copy(deep=True)
     # again we need to change the pk type to match prcl
     prclShp['HANDLE'] = prclShp['HANDLE'].astype(int)
     fullyMergedPrcl = fullyMergedPrcl.merge(

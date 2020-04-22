@@ -16,7 +16,7 @@ vacant_table_fields = {
     'NHD_NAME': fields.neighborhoodName,
     'SITEADDR': 'SITEADDR',
     'ZIP': 'ZIP',
-    'VacCatText': 'TODO',   # this is another "code to text" translation field, but the vocabulary isn't on the stl website.
+    'VacCatText': 'VacCatText',   # VacCatText is set by vacant_building_filter
     'ResFullBat': 'FullBaths',
     'ResHlfBath': 'HalfBaths',
     'Bath_Total': fields.calculateBathTotal,

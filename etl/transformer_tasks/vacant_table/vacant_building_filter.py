@@ -1,14 +1,89 @@
 import pandas as pd
+import vacant_building_filter
 
 def vacant_building_filter(df):
+    '''
+    Removes parcels that are not vacant from the parcel table.
+    Categorizes remaining parcels as Vacant Building or Possibly Vacant Building
+    Vacancy classification is stored in a Prcl.VacCatText field.
+    TODO: Needs to deal with Vacant Lots too!
+
+    We started with these rules to determine vacancy:
+    https://www.stlvacancy.com/methods--data.html
+    We could not find the data to implement all of the rules.
+    TODO: store missing rules as github issues, link here
+    Our (OpenSTL) notes on the stlvacancy.com page:
+    https://docs.google.com/document/d/1tcPzOrVOxtbFbVXOmOF8DJaXTBh_pL5FxGrzwPZ0yHU
+
+    Arguments:
+    df -- dictionary of dataframes from extractor
+
+    Returns:
+    Prcl dataframe pruned and modified by the vacant filter.
+    '''
+
     prcl = df['Prcl']
-    prcl['owned_by_lra_and_contains_building'] = prcl.apply(owned_by_lra_and_contains_building, axis = 1, args=(df))
-    prcl['marked_vacant_by_annual_survey_since_2017'] = prcl.apply(marked_vacant_by_annual_survey, axis = 1, args=(df))
-    prcl['marked_vacant_by_forestry_dept'] = prcl.apply(marked_vacant_by_forestry_dept, axis = 1, args=(df))
-    prcl['building_is_structurally_condemned'] = prcl.apply(building_is_structurally_condemned, axis = 1, args=(df))
-    prcl['boarded_up_at_least_once_since_2017'] = prcl.apply(boarded_up_at_least_once_since_2017, axis = 1, args=(df))
-    prcl['demolition_permit_issued_since_2016'] = prcl.apply(demolition_permit_issued_since_2016, axis = 1, args=(df))
-    prcl['occupancy_permit_issued_since_2016'] = prcl.apply(occupancy_permit_issued_since_2016, axis = 1, args=(df))
+    
+    vacancy_criteria = [
+        'owned_by_lra_and_contains_building',
+        'marked_vacant_by_annual_survey_since_2017',
+        'marked_vacant_by_forestry_dept',
+        'building_is_structurally_condemned',
+        'boarded_up_at_least_once_since_2017',
+        'demolition_permit_issued_since_2016',
+        'occupancy_permit_issued_since_2016'
+    ]
+
+    # add criteria to each prcl record
+    for criterion_name in vacancy_criteria:
+        filter_fn = getattr(vacant_building_filter, criterion_name)
+        prcl.apply(filter_fn, axis = 1, args = (df) )
+
+    # use the criteria to label the parcel as vacant or not
+    prcl['VacCatText'] = prcl.apply(evaluate_parcel_vacancy, axis = 1)
+
+    # return only vacant parcels
+    return prcl[prcl.VacCatText != "Not Vacant"]
+
+def evaluate_parcel_vacancy(parcel):
+    '''
+    Evaluates a parcel for vacancy criteria
+
+    Arguments:
+    parcel -- A record in the Prcl table
+
+    Returns:
+    Returns one of the following judgments:
+    Vacant Building, Possible Vacant Building or Not Vacant
+    '''
+    # TODO: Deal with lots. The lot returns values are Vacant Lot and Possible Vacant Lot
+    # TODO: There are cases in which a specific is_...building failure can yield a vacant lot. We will deal with these when we deal with lots
+    if (is_vacant_building(parcel)):
+        return "Vacant Building"
+    elif (is_possibly_vacant_building(parcel)):
+        return "Possibly Vacant Building"
+    else: 
+        return "Not Vacant"
+    
+def is_vacant_building(parcel):
+    return (
+            ( parcel.owned_by_lra_and_contains_building ) and
+            parcel.marked_vacant_by_annual_survey and
+            ( parcel.marked_vacant_by_forestry_dept and parcel.building_is_structurally_condemned and 
+                parcel.boarded_up_at_least_once
+            )
+        ) and (
+            not parcel.demolition_permit_issued() and not parcel.occupancy_permit_issued
+        )
+
+def is_possibly_vacant_building(parcel):
+    return (
+            parcel.marked_vacant_by_forestry_dept or
+            parcel.boarded_up_at_least_once
+        ) and (
+            not parcel.demolition_permit_issued() and not parcel.occupancy_permit_issued
+        )
+    
 
 def owned_by_lra_and_contains_building(df, parcel):
     return parcel['OwnerName'] == 'LRA' and (parcel['NbrOfBldgsRes'] + parcel['NbrOfBldgsCom']) > 0
@@ -133,7 +208,7 @@ def test_occupancy_permit_issued():
 
     results = [False, True, False]
     for handle in range(1, 3):
-        parcel = pd.Series({'Handle': handle})
+        parcel = pd.Series({'Handle': handle})  
         assert occupancy_permit_issued(df, parcel) == results[handle - 1]
 
 if __name__ == "__main__":
