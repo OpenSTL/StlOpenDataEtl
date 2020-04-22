@@ -76,21 +76,22 @@ def test_building_is_structurally_condemned():
     assert(building_is_structurally_condemned(df, p2) == False)
 
 # match parcel handle to public_inventory, then match inventory Record No to boardup_public
-def boarded_up_at_least_once_since_2017(df, parcel):
+# only care about boardup records since Jan 1, 2016
+def boarded_up_at_least_once(df, parcel):
     try:
         public_inventory = df['dbo_vw_public_inventory']
         boardup_public = df['dbo_vw_boardup_public']
 
         record_number = public_inventory.loc[parcel.Handle, 'Record_No']
-        return boardup_public.loc[[record_number]].query('Completion_date >= 20170101').size > 0
+        return boardup_public.loc[[record_number]].query('Completion_date >= 20160101').size > 0
 
     except KeyError:
         return False
 
-def test_boarded_up_at_least_once_since_2017():
+def test_boarded_up_at_least_once():
     public_inventory = pd.DataFrame({'Handle': [1, 2], 'Record_No': [1001, 2002]})
     public_inventory.set_index('Handle', inplace=True)
-    boardup_public = pd.DataFrame({'Record_No': [1001, 2002], 'Completion_date': [pd.Timestamp('12/31/2016'), pd.Timestamp('1/1/2017')]})
+    boardup_public = pd.DataFrame({'Record_No': [1001, 2002], 'Completion_date': [pd.Timestamp('12/31/2015'), pd.Timestamp('1/1/2016')]})
     boardup_public.set_index('Record_No', inplace=True)
     df = {
         'dbo_vw_public_inventory': public_inventory,
@@ -99,41 +100,41 @@ def test_boarded_up_at_least_once_since_2017():
     results = [False, True, False]
     for handle in range(1, 3):
         parcel = pd.Series({'Handle': handle})
-        assert(boarded_up_at_least_once_since_2017(df, parcel) == results[handle - 1])
+        assert(boarded_up_at_least_once(df, parcel) == results[handle - 1])
 
-def demolition_permit_issued_since_2016(df, parcel):
+def demolition_permit_issued(df, parcel):
     try:
         demo = df['PrmDemo']
-        return demo.loc[[parcel.Handle]].query('IssueDate >= 20170101').size > 0
+        return demo.loc[[parcel.Handle]].query('IssueDate >= 20160101').size > 0
     except KeyError:
         return False
 
-def test_demolition_permit_issued_since_2016():
-    demo = pd.DataFrame({'Handle': [1, 2], 'IssueDate': [pd.Timestamp('12/31/2016'), pd.Timestamp('1/1/2017')]})
+def test_demolition_permit_issued():
+    demo = pd.DataFrame({'Handle': [1, 2], 'IssueDate': [pd.Timestamp('12/31/2015'), pd.Timestamp('1/1/2016')]})
     demo.set_index('Handle', inplace=True)
     df = { 'PrmDemo': demo }
 
     results = [False, True, False]
     for handle in range(1, 3):
         parcel = pd.Series({'Handle': handle})
-        assert demolition_permit_issued_since_2016(df, parcel) == results[handle - 1]
+        assert demolition_permit_issued(df, parcel) == results[handle - 1]
 
-def occupancy_permit_issued_since_2016(df, parcel):
+def occupancy_permit_issued(df, parcel):
     try:
         demo = df['PrmOcc']
-        return demo.loc[[parcel.Handle]].query('IssueDate >= 20170101').size > 0
+        return demo.loc[[parcel.Handle]].query('IssueDate >= 20160101').size > 0
     except KeyError:
         return False
 
-def test_occupancy_permit_issued_since_2016():
-    occupancy = pd.DataFrame({'Handle': [1, 2], 'IssueDate': [pd.Timestamp('12/31/2016'), pd.Timestamp('1/1/2017')]})
+def test_occupancy_permit_issued():
+    occupancy = pd.DataFrame({'Handle': [1, 2], 'IssueDate': [pd.Timestamp('12/31/2015'), pd.Timestamp('1/1/2016')]})
     occupancy.set_index('Handle', inplace=True)
     df = { 'PrmOcc': occupancy }
 
     results = [False, True, False]
     for handle in range(1, 3):
         parcel = pd.Series({'Handle': handle})
-        assert occupancy_permit_issued_since_2016(df, parcel) == results[handle - 1]
+        assert occupancy_permit_issued(df, parcel) == results[handle - 1]
 
 if __name__ == "__main__":
     print('vacant_building_filter_2.py')
@@ -142,6 +143,6 @@ if __name__ == "__main__":
     test_marked_vacant_by_annual_survey()
     test_marked_vacant_by_forestry_dept()
     test_building_is_structurally_condemned()
-    test_boarded_up_at_least_once_since_2017()
-    test_demolition_permit_issued_since_2016()
-    test_occupancy_permit_issued_since_2016()
+    test_boarded_up_at_least_once()
+    test_demolition_permit_issued()
+    test_occupancy_permit_issued()
