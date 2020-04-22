@@ -2,11 +2,13 @@ import pandas as pd
 
 def vacant_building_filter(df):
     prcl = df['Prcl']
-    prcl['owned_by_lra_and_contains_building'] = prcl.apply(owned_by_lra_and_contains_building, axis = 1)
+    prcl['owned_by_lra_and_contains_building'] = prcl.apply(owned_by_lra_and_contains_building, axis = 1, args=(df))
     prcl['marked_vacant_by_annual_survey_since_2017'] = prcl.apply(marked_vacant_by_annual_survey, axis = 1, args=(df))
     prcl['marked_vacant_by_forestry_dept'] = prcl.apply(marked_vacant_by_forestry_dept, axis = 1, args=(df))
     prcl['building_is_structurally_condemned'] = prcl.apply(building_is_structurally_condemned, axis = 1, args=(df))
     prcl['boarded_up_at_least_once_since_2017'] = prcl.apply(boarded_up_at_least_once_since_2017, axis = 1, args=(df))
+    prcl['demolition_permit_issued_since_2016'] = prcl.apply(demolition_permit_issued_since_2016, axis = 1, args=(df))
+    prcl['occupancy_permit_issued_since_2016'] = prcl.apply(occupancy_permit_issued_since_2016, axis = 1, args=(df))
 
 def owned_by_lra_and_contains_building(df, parcel):
     return parcel['OwnerName'] == 'LRA' and (parcel['NbrOfBldgsRes'] + parcel['NbrOfBldgsCom']) > 0
@@ -99,6 +101,40 @@ def test_boarded_up_at_least_once_since_2017():
         parcel = pd.Series({'Handle': handle})
         assert(boarded_up_at_least_once_since_2017(df, parcel) == results[handle - 1])
 
+def demolition_permit_issued_since_2016(df, parcel):
+    try:
+        demo = df['PrmDemo']
+        return demo.loc[[parcel.Handle]].query('IssueDate >= 20170101').size > 0
+    except KeyError:
+        return False
+
+def test_demolition_permit_issued_since_2016():
+    demo = pd.DataFrame({'Handle': [1, 2], 'IssueDate': [pd.Timestamp('12/31/2016'), pd.Timestamp('1/1/2017')]})
+    demo.set_index('Handle', inplace=True)
+    df = { 'PrmDemo': demo }
+
+    results = [False, True, False]
+    for handle in range(1, 3):
+        parcel = pd.Series({'Handle': handle})
+        assert demolition_permit_issued_since_2016(df, parcel) == results[handle - 1]
+
+def occupancy_permit_issued_since_2016(df, parcel):
+    try:
+        demo = df['PrmOcc']
+        return demo.loc[[parcel.Handle]].query('IssueDate >= 20170101').size > 0
+    except KeyError:
+        return False
+
+def test_occupancy_permit_issued_since_2016():
+    occupancy = pd.DataFrame({'Handle': [1, 2], 'IssueDate': [pd.Timestamp('12/31/2016'), pd.Timestamp('1/1/2017')]})
+    occupancy.set_index('Handle', inplace=True)
+    df = { 'PrmOcc': occupancy }
+
+    results = [False, True, False]
+    for handle in range(1, 3):
+        parcel = pd.Series({'Handle': handle})
+        assert occupancy_permit_issued_since_2016(df, parcel) == results[handle - 1]
+
 if __name__ == "__main__":
     print('vacant_building_filter_2.py')
 
@@ -107,3 +143,5 @@ if __name__ == "__main__":
     test_marked_vacant_by_forestry_dept()
     test_building_is_structurally_condemned()
     test_boarded_up_at_least_once_since_2017()
+    test_demolition_permit_issued_since_2016()
+    test_occupancy_permit_issued_since_2016()
